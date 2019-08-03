@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\common\ff_cmd_args.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\ff_file_opt.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\ff_log.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\ff_runtime_ocl.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\ff_timer.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConvFwd1x1.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ConvFwd1x1KernelWriter.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\TensileConvBase.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\ff_runtime_hsa.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\ff_basic.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_cmd_args.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_file_opt.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_log.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_math.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_ocl_helper.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_runtime_ocl.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_timer.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_utils.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\AutoTuning.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ConvFwd1x1.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ConvFwd1x1KernelWriter.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\IsaGenerater.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\KernelWriter.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\TensileConvBase.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_runtime_hsa.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ff_hsa_helper.h">
+      <Filter>common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="common">
+      <UniqueIdentifier>{7a849c14-36c9-424b-a322-c9236beed745}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{27c05d24-8ee2-4251-9eca-6a5cc2e2ea13}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
