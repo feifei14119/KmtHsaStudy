@@ -7,8 +7,8 @@
 #include "ff_math.h"
 #include "ff_cmd_args.h"
 
-#include "ff_ocl_helper.h"
-#include "ff_runtime_ocl.h"
-#include "ff_runtime_hsa.h"
+//#include "ff_ocl_helper.h"
+//#include "ff_runtime_ocl.h"
+//#include "ff_runtime_hsa.h"
 
 using namespace feifei;

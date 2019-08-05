@@ -30,8 +30,6 @@
     <ClCompile Include="..\common\ff_cmd_args.cpp" />
     <ClCompile Include="..\common\ff_file_opt.cpp" />
     <ClCompile Include="..\common\ff_log.cpp" />
-    <ClCompile Include="..\common\ff_runtime_hsa.cpp" />
-    <ClCompile Include="..\common\ff_runtime_ocl.cpp" />
     <ClCompile Include="..\common\ff_timer.cpp" />
     <ClCompile Include="..\src\hsa_info_test.cpp" />
     <ClCompile Include="..\src\hsa_mem_test.cpp" />
@@ -44,12 +42,8 @@
     <ClInclude Include="..\common\ff_basic.h" />
     <ClInclude Include="..\common\ff_cmd_args.h" />
     <ClInclude Include="..\common\ff_file_opt.h" />
-    <ClInclude Include="..\common\ff_hsa_helper.h" />
     <ClInclude Include="..\common\ff_log.h" />
     <ClInclude Include="..\common\ff_math.h" />
-    <ClInclude Include="..\common\ff_ocl_helper.h" />
-    <ClInclude Include="..\common\ff_runtime_hsa.h" />
-    <ClInclude Include="..\common\ff_runtime_ocl.h" />
     <ClInclude Include="..\common\ff_timer.h" />
     <ClInclude Include="..\common\ff_utils.h" />
     <ClInclude Include="..\libhsakmt\hsakmt.h" />
@@ -94,7 +88,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\feiw\source\LinuxInclude\OclInclude;C:\Users\feiw\source\LinuxInclude\HsaInclude\hsa;C:\Users\feiw\source\repos\hsa_test\libhsakmt;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\feiw\source\repos\hsa_test\libhsakmt;$(IncludePath)</IncludePath>
     <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
     <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
     <RemoteLdToolExe>g++</RemoteLdToolExe>
@@ -110,7 +104,7 @@
       <StrictAliasing>false</StrictAliasing>
       <ThreadSafeStatics>Yes</ThreadSafeStatics>
       <ExceptionHandling>Enabled</ExceptionHandling>
-      <AdditionalIncludeDirectories>/opt/rocm/opencl/include/;/home/feifei/ROCR-Runtime/src/inc/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PositionIndependentCode>true</PositionIndependentCode>
     </ClCompile>
     <PreBuildEvent>
@@ -119,8 +113,8 @@
     </PreBuildEvent>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <LibraryDependencies>OpenCL;hsa-runtime64;hsakmt%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>/opt/rocm/opencl/lib/x86_64/;/home/feifei/ROCR-Runtime/src/build/;/opt/rocm/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>hsakmt%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>/opt/rocm/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
