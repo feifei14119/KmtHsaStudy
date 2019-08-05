@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int gNodeNum; int gNodeId = 1;
+int gNodeNum; int gNodeId = 0;
 int gGpuNodeNum = 0; std::vector<uint32_t> gGpuNodeIds;
 int gLinkNum; int gLinkId;
 int gCacheNum; int gCacheId;

@@ -33,7 +33,9 @@
     <ClCompile Include="..\common\ff_timer.cpp" />
     <ClCompile Include="..\src\hsa_info_test.cpp" />
     <ClCompile Include="..\src\hsa_mem_test.cpp" />
-    <ClCompile Include="..\src\hsa_queue_test.cpp" />
+    <ClCompile Include="..\src\hsa_test.cpp" />
+    <ClCompile Include="..\src\kmt_mem_test.cpp" />
+    <ClCompile Include="..\src\kmt_test.cpp" />
     <ClCompile Include="..\src\main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -50,6 +52,7 @@
     <ClInclude Include="..\libhsakmt\hsakmttypes.h" />
     <ClInclude Include="..\libhsakmt\linux\kfd_ioctl.h" />
     <ClInclude Include="..\src\hsa_test.h" />
+    <ClInclude Include="..\src\kmt_test.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5271357c-cc08-4eee-b29b-da33abfcaeff}</ProjectGuid>

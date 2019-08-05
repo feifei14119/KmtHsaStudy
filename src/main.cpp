@@ -5,16 +5,12 @@
 
 #include "../common/ff_utils.h"
 
+#include "kmt_test.h"
 #include "hsa_test.h"
 
 int main(int argc, char *argv[])
 {
-	hsa_test_open();
-
-	hsa_info_test();
-//	hsa_queue_test();
-	hsa_mem_test();
-
-	hsa_test_close();
+//	kmt_test();
+	hsa_test();
 	return 0;
 }

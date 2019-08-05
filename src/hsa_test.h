@@ -1,7 +1,10 @@
 #pragma once
 
-#include "stdio.h"
+#include <stdio.h>
+
 #include "hsakmt.h"
+
+extern void hsa_test();
 
 #define hsa_test_open() do{\
 	HSAKMT_STATUS kmt_status;\
@@ -25,5 +28,4 @@ extern int gMemNum; extern int gMemId;
 extern int gCacheNum; extern int gCacheId;
 
 extern void hsa_info_test();
-extern void hsa_queue_test();
 extern void hsa_mem_test();

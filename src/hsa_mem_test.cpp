@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 #include "hsa_test.h"
 
 using namespace std;
@@ -79,6 +80,9 @@ void test_sys_mem()
 
 	printf("\t\t alloc sys mem %d(B) at 0x%X.\n", actual_alloc_size, alloc_addr);
 
+	void * kmt_alloc_addr = NULL;
+//	ff_kmt_alloc_host_cpu(&kmt_alloc_addr, actual_alloc_size, mem_flag);
+
 	printf("\n\t\t ----------------------\n");
 	printf("\t\t map to gpu node test.\n");
 	size_t map_node_count = 1;
@@ -112,6 +116,8 @@ void test_sys_mem()
 		printf("\t\t free sys mem %d(B) at 0x%X.\n", actual_alloc_size, alloc_addr);
 	else
 		printf("\t\t faild to free sys mem. err = %d\n", errNum);
+
+//	ff_kmt_free_host_cpu(kmt_alloc_addr, actual_alloc_size);
 
 	printf("\n");
 }
@@ -230,6 +236,8 @@ void hsa_mem_test()
 		test_gpu_mem();
 		break;
 	}
+
+	printf("sys page size = %ld.\n", sysconf(_SC_PAGESIZE));
 }
 
 /*
