@@ -34,6 +34,7 @@
     <ClCompile Include="..\src\hsa_info_test.cpp" />
     <ClCompile Include="..\src\hsa_mem_test.cpp" />
     <ClCompile Include="..\src\hsa_test.cpp" />
+    <ClCompile Include="..\src\kmt_info_test.cpp" />
     <ClCompile Include="..\src\kmt_mem_test.cpp" />
     <ClCompile Include="..\src\kmt_test.cpp" />
     <ClCompile Include="..\src\main.cpp">

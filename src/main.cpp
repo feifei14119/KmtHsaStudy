@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[])
 {
-//	kmt_test();
-	hsa_test();
+	kmt_test();
+//	hsa_test();
 	return 0;
 }

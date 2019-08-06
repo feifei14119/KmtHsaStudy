@@ -1,23 +1,15 @@
-#include <string>
-#include <iostream>
-#include <vector>
-
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <strings.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-
 #include "kmt_test.h"
 
-using namespace std;
+void kmt_test()
+{
+	kmt_test_open();
 
-static const char kfd_device_name[] = "/dev/kfd";
-int kfd_fd;
+	kmt_info_test();
+	kmt_mem_test();
 
-/* Call ioctl, restarting if it is interrupted */
+	kmt_test_close();
+}
+
 int kmtIoctl(int fd, unsigned long request, void *arg)
 {
 	int ret;
@@ -29,16 +21,29 @@ int kmtIoctl(int fd, unsigned long request, void *arg)
 	return ret;
 }
 
-
-void kmt_test()
+int readIntKey(std::string file, std::string key)
 {
-	kmt_test_open();
+	int page_size = 4096;
+	FILE * fd = fopen(file.data(), "r");
 
+	int prop_val;
+	if (key == "")
+	{
+		fscanf(fd, "%ul", &prop_val);
+		return prop_val;
+	}
 
-	struct kfd_ioctl_get_version_args args = { 0 };
-	kmtIoctl(kfd_fd, AMDKFD_IOC_GET_VERSION, &args);
-	printf("AMDKFD version = %d.%d.\n", args.major_version, args.minor_version);
+	char *read_buf = (char*)malloc(page_size);
+	int read_size = fread(read_buf, 1, page_size, fd);
+	uint32_t prog = 0;
+	char * p = read_buf;
+	char prop_name[256];
 
-
-	kmt_test_close();
+	while (sscanf(p += prog, "%s %llu\n%n", prop_name, &prop_val, &prog) == 2)
+	{
+		if (strcmp(prop_name, key.data()) == 0) 
+		{
+			return prop_val;
+		}
+	}
 }

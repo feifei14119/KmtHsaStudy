@@ -31,6 +31,9 @@
     <ClCompile Include="..\src\hsa_test.cpp">
       <Filter>src\hsa</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\kmt_info_test.cpp">
+      <Filter>src\kmt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\ff_basic.h">
