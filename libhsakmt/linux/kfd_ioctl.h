@@ -522,7 +522,7 @@ struct kfd_ioctl_cross_memory_copy_args {
 		AMDKFD_IOWR(0x20, struct kfd_ioctl_get_queue_wave_state_args)
 
 #define AMDKFD_IOC_ACQUIRE_VM			\
-		AMDKFD_IOW(0x21, struct kfd_ioctl_acquire_vm_args)
+		AMDKFD_IOW(0x15, struct kfd_ioctl_acquire_vm_args)
 
 #define AMDKFD_COMMAND_START		0x01
 #define AMDKFD_COMMAND_END		0x22

@@ -4,6 +4,7 @@ int kfd_fd;
 int gKmtNodeNum;
 int gGpuId;
 
+int sys_page_size;
 void kmt_info_test()
 {
 	printf("***********************\n");
@@ -15,8 +16,8 @@ void kmt_info_test()
 	printf("kfd node path = %s.\n", KFD_NODES_PATH);
 	printf("\n");
 
-	int page_size = sysconf(_SC_PAGESIZE);
-	printf("page size = %d(Byte).\n", page_size);
+	sys_page_size = sysconf(_SC_PAGESIZE);
+	printf("page size = %d(Byte).\n", sys_page_size);
 	printf("\n");
 
 	struct kfd_ioctl_get_version_args args = { 0 };

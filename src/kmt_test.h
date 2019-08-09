@@ -47,6 +47,7 @@ using namespace std;
 extern int kfd_fd;
 extern int gGpuId;
 extern int gKmtNodeNum;
+extern int sys_page_size;
 extern void kmt_test();
 extern void kmt_info_test();
 extern void kmt_mem_test();
@@ -56,3 +57,5 @@ extern void ff_kmt_free_host_cpu(void * mem_addr, size_t mem_size);
 
 extern int kmtIoctl(int fd, unsigned long request, void *arg);
 extern int readIntKey(std::string file, std::string key = "");
+
+#define ALIGN_UP(x,align) (((uint64_t)(x) + (align) - 1) & ~(uint64_t)((align)-1))
