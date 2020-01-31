@@ -141,12 +141,12 @@ void kmt_aperture_test()
 		printf("\tscratch_limit = %ld(TB).\n", kfd_dev_aperture[i].scratch_limit / 1024 / 1024 / 1024 / 1024);
 	}
 
-
 	printf("\n");
 }
 
 // ==================================================================
 // ==================================================================
+void * mmap_aperture_allocate_aligned(uint64_t size);
 #define GFX9_LIMIT				(1ULL << 47)
 #define IS_CANONICAL_ADDR(a)	((a) < (1ULL << 47))
 #define GPU_HUGE_PAGE_SIZE		(2 << 20)
@@ -159,26 +159,41 @@ void kmt_init_vm_test()
 	printf("=======================\n");
 	printf("acquire VM from DRM render node for KFD use\n");
 	struct kfd_ioctl_acquire_vm_args args_vm;
-	args_vm.gpu_id = gGpuId;
+	args_vm.gpu_id = kfd_dev_aperture->gpu_id;
 	args_vm.drm_fd = drm_render_fd;
-	printf("acquire vm from drm render. gpu_id = %d, drm_fs = %d\n", gGpuId, drm_render_fd);
+	printf("acquire vm from drm render. gpu_id = %d, drm_fs = %d\n", kfd_dev_aperture->gpu_id, drm_render_fd);
 	int rtn = kmtIoctl(kfd_fd, AMDKFD_IOC_ACQUIRE_VM, (void *)&args_vm);
 	if (rtn != 0)
-		printf("failed to acquire vm from drm render. err = %d\n", rtn);
+		printf("Failed to acquire vm from drm render. err = %d\n", rtn);
 	printf("\n");
 
 	printf("=======================\n");
 	printf("init_svm_apertures():reserve SVM address\n");
-	uint64_t svm_base = kfd_dev_aperture->gpuvm_base;
-	uint64_t svm_limt = kfd_dev_aperture->gpuvm_limit;
 	int svm_alig = sys_page_size;
 	int guard_page = 1;
-	printf("gpuvm: base = 0x%lX, limit = 0x%lX, page_size = %d, guard_page = %d.\n", svm_base, svm_limt, svm_alig, guard_page);
-
+	uint64_t svm_base = kfd_dev_aperture->gpuvm_base;
+	uint64_t svm_limt = kfd_dev_aperture->gpuvm_limit;
 	svm_base = ALIGN_UP(svm_base, GPU_HUGE_PAGE_SIZE);
 	svm_limt = ((svm_limt + 1) & ~(size_t)(GPU_HUGE_PAGE_SIZE - 1)) - 1;
-	if (svm_limt >= GFX9_LIMIT - 1)
-		printf("we have GFXv9 or later GPUs only.\n");
+	printf("gpuvm: base = 0x%lX, limit = 0x%lX, page_size = %d, guard_page = %d.\n", svm_base, svm_limt, svm_alig, guard_page);
+	printf("init_mmap_apertures():\n");
+	dgpu_aperture.base = (void*)svm_base;
+	dgpu_aperture.limit = (void*)svm_limt;
+	dgpu_aperture.align = svm_alig;
+	dgpu_aperture.guard_pages = guard_page;
+	dgpu_aperture.is_cpu_accessible = true;
+	dgpu_alt_aperture = dgpu_aperture;
+	printf("dgpu_aperture: base = 0x%lX, limit = 0x%lX.\n", dgpu_aperture.base, dgpu_aperture.limit);
+	printf("dgpu_alt_aperture: base = 0x%lX, limit = 0x%lX.\n", dgpu_alt_aperture.base, dgpu_alt_aperture.limit);
+	printf("\n");
+
+//	printf("try to allocate one page.\n");
+//	void * try_addr;
+//	try_addr = mmap_aperture_allocate_aligned(sys_page_size);
+//	printf("try address = 0x%016lX.\n", try_addr);
+
+	// TODO: vm map aperture
+#if 0
 	if (svm_limt > SVM_RESERVATION_LIMIT)
 		svm_limt = SVM_RESERVATION_LIMIT;
 	printf("gpuvm: base = 0x%lX, limit = 0x%lX.\n", svm_base, svm_limt);
@@ -276,11 +291,12 @@ void kmt_init_vm_test()
 	printf("\tSVM alt (coherent): 0x%016lX - 0x%016lX\n", dgpu_alt_aperture.base, dgpu_alt_aperture.limit);
 	printf("\tSVM (non-coherent): 0x%016lX - 0x%016lX\n", dgpu_aperture.base, dgpu_aperture.limit);
 	printf("\n");
+#endif
 
 	printf("=======================\n");
 	printf("fmm_set_memory_policy()\n");
 	struct kfd_ioctl_set_memory_policy_args args_plc = { 0 };
-	args_plc.gpu_id = gGpuId;
+	args_plc.gpu_id = kfd_dev_aperture->gpu_id;
 	args_plc.default_policy = disable_cache ? KFD_IOC_CACHE_POLICY_COHERENT : KFD_IOC_CACHE_POLICY_NONCOHERENT;
 	args_plc.alternate_policy = KFD_IOC_CACHE_POLICY_COHERENT;
 	args_plc.alternate_aperture_base = (uint64_t)dgpu_alt_aperture.base;
@@ -290,33 +306,144 @@ void kmt_init_vm_test()
 		printf("set memory policy base = 0x%016lX, size = %ld(GB).\n", args_plc.alternate_aperture_base, args_plc.alternate_aperture_size / 1024 / 1024 / 1024);
 	printf("\n");
 
-
 	// ----------------------------------------------
-	/*scratch_physical.align = sys_page_size;
-
-	gpuvm_aperture.align = sys_page_size;
-	gpuvm_aperture.guard_pages = guard_page;
-	gpuvm_aperture.base = NULL;
-	gpuvm_aperture.limit = NULL;
-
+	/*
+	aperture_t:
 	lds_aperture.base = (void*)kfd_dev_aperture[0].lds_base;
 	lds_aperture.limit = (void*)kfd_dev_aperture[0].lds_limit;
 
 	scratch_aperture.base = (void*)kfd_dev_aperture[0].scratch_base;
 	scratch_aperture.limit = (void*)kfd_dev_aperture[0].scratch_limit;
+
+
+	manageable_aperture_t:
+	scratch_physical.align = sys_page_size;
+	scratch_physical.ops = reserved_aperture_ops
+
+	gpuvm_aperture.base = NULL;
+	gpuvm_aperture.limit = NULL;
+	gpuvm_aperture.align = sys_page_size;
+	gpuvm_aperture.guard_pages = guard_page;
 	
+	cpuvm_aperture.base = 0;
+	cpuvm_aperture.limit = (void *)0x7FFFFFFFFFFF; // 128T
 	cpuvm_aperture.align = sys_page_size;
-	cpuvm_aperture.limit = (void *)0x7FFFFFFFFFFF; // 2^47 - 1
 	*/
 	// ----------------------------------------------
 }
 
 // ==================================================================
 // ==================================================================
+void * mmap_aperture_allocate_aligned(uint64_t size)
+{
+	size_t align = dgpu_alt_aperture.align;
+	int guard_pages = dgpu_alt_aperture.guard_pages;
+	size_t guard_size, aligned_padded_size;
+	void * addr, * aligned_addr;
+
+	printf("/*\n");
+	while (align < GPU_HUGE_PAGE_SIZE && size >= (align << 1))
+	{
+		align <<= 1;
+		printf(".");
+	}
+
+	size = ALIGN_UP(size, align);
+	guard_size = (uint64_t)guard_pages * sys_page_size;
+	printf("        guard size = 0x%016lX.\n", guard_size);
+	aligned_padded_size = size + align + 2 * guard_size - sys_page_size;
+	printf("aligned guard size = 0x%016lX.\n", aligned_padded_size);
+
+	addr = mmap(0, aligned_padded_size, PROT_NONE, MAP_ANONYMOUS | MAP_NORESERVE | MAP_PRIVATE, -1, 0);
+	printf("mmap %d(KB) at 0x%016lX.\n", aligned_padded_size / 1024, addr);
+	aligned_addr = (void *)ALIGN_UP((uint64_t)addr + guard_size, align);
+	printf("aligned addr = 0x%016lX.\n", aligned_addr);
+
+	if (aligned_addr < dgpu_alt_aperture.base ||
+		VOID_PTR_ADD(aligned_addr, size - 1) > dgpu_alt_aperture.limit)
+	{
+		printf("mmap returned %p, out of range %p-%p\n", aligned_addr, dgpu_alt_aperture.base, dgpu_alt_aperture.limit);
+		munmap(addr, aligned_padded_size);
+		return NULL;
+	}
+
+	if (aligned_addr > addr)
+	{
+		int err= munmap(addr, VOID_PTRS_SUB(aligned_addr, addr));
+		printf("munmap 1: addr = 0x%016lX, aligned_addr = 0x%016lX. err = %d\n", addr, aligned_addr, err);
+	}
+
+	void *aligned_end, *mapping_end;
+	aligned_end = VOID_PTR_ADD(aligned_addr, size);
+	mapping_end = VOID_PTR_ADD(addr, aligned_padded_size);
+	if (mapping_end > aligned_end)
+	{
+		int err = munmap(aligned_end, VOID_PTRS_SUB(mapping_end, aligned_end));
+		printf("munmap 2: mapping_end = 0x%016lX, aligned_end = 0x%016lX. err = %d\n", mapping_end, aligned_end, err);
+	}
+	printf("*/\n");
+
+	return aligned_addr;
+}
 void kmt_init_mmio_test()
 {
 	printf("=======================\n");
 	printf("mmio address: map_mmio()\n");
+	// dgpu_alt_aperture
+	// dgpu_alt_aperture->ops = reserved_aperture_ops
+	//								reserved_aperture_allocate_aligned
+	//								reserved_aperture_release
+	int err;
+	void * addr, * mem;
+	size_t memSize = sys_page_size;
+	uint64_t mmap_offset;
+	uint32_t ioc_flag = KFD_IOC_ALLOC_MEM_FLAGS_MMIO_REMAP|
+		KFD_IOC_ALLOC_MEM_FLAGS_WRITABLE |
+		KFD_IOC_ALLOC_MEM_FLAGS_COHERENT;
+	// map_mmio()
+	//     __fmm_allocate_device() // alloc page_size physical mem
+	//         aperture_allocate_area()		// allocate address space
+	//         fmm_allocate_memory_object()	// allocate in device: ioctrl
+	//     mmap()				// map to cpu
+	//     fmm_map_to_gpu()		// map to gpu
+	printf("\t-----------------------\n");
+	printf("\tfmm_allocate_device()\n");
+	printf("\t\tmmap_aperture_allocate_aligned().\n");
+	//printf("\t\t");
+	memSize *= 1;
+	addr = mmap_aperture_allocate_aligned(memSize);
+	printf("\t\tallocate physical mem %d(KB) at 0x%016lX.\n", memSize/1024, addr);
+	printf("\n");
+
+	printf("\t\tfmm_allocate_memory_object().\n");
+	struct kfd_ioctl_alloc_memory_of_gpu_args args_alloc = { 0 };
+	args_alloc.gpu_id = kfd_dev_aperture->gpu_id;
+	args_alloc.size = ALIGN_UP(memSize, dgpu_alt_aperture.align);
+	args_alloc.flags = ioc_flag | KFD_IOC_ALLOC_MEM_FLAGS_NO_SUBSTITUTE;
+	args_alloc.va_addr = (uint64_t)addr;
+	err = kmtIoctl(kfd_fd, AMDKFD_IOC_ALLOC_MEMORY_OF_GPU, &args_alloc);
+	if (err != 0)
+		printf("\t\tFailed to alloc memory on gpu. err = %d.\n", err);
+	else
+		printf("\t\tAlloc memory on gpu.\n");
+	printf("\n");
+
+	mmap_offset = args_alloc.mmap_offset;
+	printf("\t\tmmap_offset = 0x%016lX.\n", mmap_offset);
+
+	printf("\t\t\taperture_allocate_object().\n");
+
+	printf("\t-----------------------\n");
+	printf("\tmap to cpu\n");
+	printf("\tmmap for cpu access %d(KB) at 0x%016lX.\n", sys_page_size/1024, addr);
+	mem = mmap(addr, sys_page_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, drm_render_fd, mmap_offset);
+	if (mem == MAP_FAILED)
+		printf("\tFailed to mmap for cpu access.\n", mem);
+	printf("\n");
+
+	printf("\t-----------------------\n");
+	printf("\tmap to gpu: fmm_map_to_gpu()\n");
+	printf("\n");	
 }
 
 
@@ -333,6 +460,5 @@ void kmt_mem_test()
 	kmt_init_vm_test();
 	kmt_init_mmio_test();
 
-	kmt_close_drm_test();
-	
+	kmt_close_drm_test();	
 }
