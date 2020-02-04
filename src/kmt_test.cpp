@@ -6,6 +6,7 @@ void kmt_test()
 
 	kmt_info_test();
 	kmt_mem_test();
+	kmt_queue_test();
 
 	kmt_test_close();
 }

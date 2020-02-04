@@ -2,102 +2,12 @@
 #include <iostream>
 #include <vector>
 #include <sys/mman.h>
+#include <errno.h>
 
 #include "kmt_test.h"
 
-
-void ff_kmt_alloc_host_cpu(void ** alloc_addr, size_t alloc_size, HsaMemFlags mem_flag)
-{
-	int mmap_prot = PROT_READ;
-	
-	if (mem_flag.ui32.ExecuteAccess)
-		mmap_prot |= PROT_EXEC;
-
-	if (!mem_flag.ui32.ReadOnly)
-		mmap_prot |= PROT_WRITE;
-
-	void *mem_addr = NULL;
-	mem_addr = mmap(NULL, alloc_size, mmap_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-
-	*alloc_addr = mem_addr;
-
-	printf("kmt alloc: %d(B) at 0x%X.\n", alloc_size, *alloc_addr);
-	printf("kmt mmap_port: ");
-	if(mmap_prot & PROT_READ)		printf("PROT_READ");
-	if (mmap_prot & PROT_EXEC)		printf(" | PROT_EXEC");
-	if (mmap_prot & PROT_WRITE)		printf(" | PROT_WRITE");
-	printf("\n");
-}
-void ff_kmt_free_host_cpu(void * mem_addr, size_t mem_size)
-{
-	munmap(mem_addr, mem_size);
-	printf("kmt free host cpu memory: %d(B) at 0x%X.\n", mem_size, mem_addr);
-	printf("\n");
-}
-
-
-typedef struct vm_area 
-{
-	void *start;
-	void *end;
-	struct vm_area *next;
-	struct vm_area *prev;
-}vm_area_t;
-typedef struct vm_object
-{
-	void *start;
-	void *userptr;
-	uint64_t userptr_size;
-	uint64_t size;	// size allocated on GPU. When the user requests a random
-					// size, Thunk aligns it to page size and allocates this
-					// aligned size on GPU
-
-	uint64_t handle; /* opaque */
-	uint32_t node_id;
-	//rbtree_node_t node;
-	//rbtree_node_t user_node;
-
-	uint32_t flags; /* memory allocation flags */
-	/* Registered nodes to map on SVM mGPU */
-	uint32_t *registered_device_id_array;
-	uint32_t registered_device_id_array_size;
-	uint32_t *registered_node_id_array;
-	uint32_t registration_count; /* the same memory region can be registered multiple times */
-	/* Nodes that mapped already */
-	uint32_t *mapped_device_id_array;
-	uint32_t mapped_device_id_array_size;
-	uint32_t *mapped_node_id_array;
-	uint32_t mapping_count;
-	/* Metadata of imported graphics buffers */
-	void *metadata;
-	/* User data associated with the memory */
-	void *user_data;
-	/* Flag to indicate imported KFD buffer */
-	bool is_imported_kfd_bo;
-}vm_object_t;
-
-// ==================================================================
-typedef struct manageable_aperture 
-{
-	void *base;
-	void *limit;
-	uint64_t align;
-	uint32_t guard_pages;
-	vm_area_t *vm_ranges;
-//	rbtree_t tree;
-//	rbtree_t user_tree;
-//	pthread_mutex_t fmm_mutex;
-	bool is_cpu_accessible;
-//	const manageable_aperture_ops_t *ops;
-} manageable_aperture_t;
-typedef struct 
-{
-	void *base;
-	void *limit;
-} aperture_t;
-
-// ==================================================================
-
+static uint32_t all_gpu_id_array_size;
+static uint32_t *all_gpu_id_array;
 // ------------------------------------------------------------------
 // process apertures
 int aperture_num;
@@ -116,10 +26,8 @@ manageable_aperture_t cpuvm_aperture;
 bool disable_cache = false;
 manageable_aperture_t svm_dgpu_aperture;
 manageable_aperture_t svm_dgpu_alt_aperture;
-
+// ------------------------------------------------------------------
 vm_object_t *vm_obj = NULL;
-static uint32_t all_gpu_id_array_size;
-static uint32_t *all_gpu_id_array;
 
 // ==================================================================
 // ==================================================================
@@ -203,13 +111,14 @@ void get_process_apertures()
 
 // ==================================================================
 // ==================================================================
-#define GFX9_LIMIT				(1ULL << 47)
-#define IS_CANONICAL_ADDR(a)	((a) < (1ULL << 47))
-#define GPU_HUGE_PAGE_SIZE		(2 << 20)
-#define SVM_MIN_VM_SIZE			(4ULL << 30)
-#define SVM_RESERVATION_LIMIT	((1ULL << 40) - 1)
-#define VOID_PTR_ADD(ptr,n) (void*)((uint8_t*)(ptr) + n)/*ptr + offset*/
-#define VOID_PTRS_SUB(ptr1,ptr2) (uint64_t)((uint8_t*)(ptr1) - (uint8_t*)(ptr2)) /*ptr1 - ptr2*/
+#define GFX9_LIMIT					(1ULL << 47)
+#define IS_CANONICAL_ADDR(a)		((a) < (1ULL << 47))
+#define GPU_HUGE_PAGE_SIZE			(2 << 20)
+#define SVM_MIN_VM_SIZE				(4ULL << 30)
+#define SVM_RESERVATION_LIMIT		((1ULL << 40) - 1)
+#define ALIGN_UP(x,align)			(((uint64_t)(x) + (align) - 1) & ~(uint64_t)((align)-1))
+#define VOID_PTR_ADD(ptr,n)			(void*)((uint8_t*)(ptr) + n)/*ptr + offset*/
+#define VOID_PTRS_SUB(ptr1,ptr2)	(uint64_t)((uint8_t*)(ptr1) - (uint8_t*)(ptr2)) /*ptr1 - ptr2*/
 void init_svm_apertures()
 {
 	printf("=======================\n");
@@ -435,7 +344,6 @@ void * allocate_device()
 }
 
 // ------------------------------------------------------------------
-#include <errno.h>
 void fmm_map_to_cpu(void * address)
 {
 	printf("-----------------------\n");

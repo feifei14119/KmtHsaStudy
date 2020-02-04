@@ -35,14 +35,14 @@ using namespace std;
 	printf("\n");\
 }while(0)
 
-#define KFD_DEVICE					"/dev/kfd"
-#define DRM_RENDER_PATH				"/dev/dri"
+#define KFD_DEVICE						"/dev/kfd"
+#define DRM_RENDER_PATH					"/dev/dri"
 #define DRM_RENDER_DEVICE(drm_minor)	string(std::string("/dev/dri/renderD") + std::to_string(drm_minor)).data()
-#define KFD_GENERATION_ID			"/sys/devices/virtual/kfd/kfd/topology/generation_id"
-#define KFD_SYSTEM_PROPERTIES		"/sys/devices/virtual/kfd/kfd/topology/system_properties"
-#define KFD_NODES_PATH				"/sys/devices/virtual/kfd/kfd/topology/nodes"
-#define KFD_NODES(n)				string(std::string("/sys/devices/virtual/kfd/kfd/topology/nodes/") + std::to_string(n)).data()
-#define PROC_CPUINFO_PATH			"/proc/cpuinfo"
+#define KFD_GENERATION_ID				"/sys/devices/virtual/kfd/kfd/topology/generation_id"
+#define KFD_SYSTEM_PROPERTIES			"/sys/devices/virtual/kfd/kfd/topology/system_properties"
+#define KFD_NODES_PATH					"/sys/devices/virtual/kfd/kfd/topology/nodes"
+#define KFD_NODES(n)					string(std::string("/sys/devices/virtual/kfd/kfd/topology/nodes/") + std::to_string(n)).data()
+#define PROC_CPUINFO_PATH				"/proc/cpuinfo"
 
 extern int kfd_fd;
 extern int gGpuId;
@@ -50,12 +50,106 @@ extern int gKmtNodeNum;
 extern int sys_page_size;
 extern void kmt_test();
 extern void kmt_info_test();
-extern void kmt_mem_test();
-
-extern void ff_kmt_alloc_host_cpu(void ** alloc_addr, size_t alloc_size, HsaMemFlags mem_flag);
-extern void ff_kmt_free_host_cpu(void * mem_addr, size_t mem_size);
 
 extern int kmtIoctl(int fd, unsigned long request, void *arg);
 extern int readIntKey(std::string file, std::string key = "");
 
-#define ALIGN_UP(x,align) (((uint64_t)(x) + (align) - 1) & ~(uint64_t)((align)-1))
+// ==================================================================
+// red-black tree
+// ==================================================================
+typedef struct rbtree_key_s 
+{
+#define ADDR_BIT 0
+#define SIZE_BIT 1
+	unsigned long addr;
+	unsigned long size;
+}rbtree_key_t;
+typedef struct rbtree_node_s 
+{
+	rbtree_key_t    key;
+	rbtree_node_s   *left;
+	rbtree_node_s   *right;
+	rbtree_node_s   *parent;
+	unsigned char   color;
+	unsigned char   data;
+}rbtree_node_t;
+typedef struct rbtree_s 
+{
+	rbtree_node_t   *root;
+	rbtree_node_t   sentinel;
+}rbtree_t;
+
+// ==================================================================
+// fmm
+// ==================================================================
+typedef struct vm_area
+{
+	void *start;
+	void *end;
+	struct vm_area *next;
+	struct vm_area *prev;
+}vm_area_t;
+typedef struct
+{
+	void *start;
+	void *userptr;
+	uint64_t userptr_size;
+	uint64_t size;	// size allocated on GPU. When the user requests a random
+					// size, Thunk aligns it to page size and allocates this
+					// aligned size on GPU
+
+	uint64_t handle; // opaque
+	uint32_t node_id;
+	rbtree_node_t node;
+	rbtree_node_t user_node;
+
+	uint32_t flags; // memory allocation flags
+
+	/* Registered nodes to map on SVM mGPU */
+	uint32_t *registered_device_id_array;
+	uint32_t registered_device_id_array_size;
+	uint32_t *registered_node_id_array;
+	uint32_t registration_count; // the same memory region can be registered multiple times
+
+	/* Nodes that mapped already */
+	uint32_t *mapped_device_id_array;
+	uint32_t mapped_device_id_array_size;
+	uint32_t *mapped_node_id_array;
+	uint32_t mapping_count;
+
+	void *metadata;//Metadata of imported graphics buffers
+	void *user_data;//User data associated with the memory
+	bool is_imported_kfd_bo;//Flag to indicate imported KFD buffer
+}vm_object_t;
+// ------------------------------------------------------------------
+typedef struct
+{
+	void *base;
+	void *limit;
+} aperture_t;
+typedef struct
+{
+	void *base;
+	void *limit;
+	uint64_t align;
+	uint32_t guard_pages;
+	vm_area_t *vm_ranges;
+	rbtree_t tree;
+	rbtree_t user_tree;
+	//	pthread_mutex_t fmm_mutex;
+	bool is_cpu_accessible;
+	//	const manageable_aperture_ops_t *ops;
+} manageable_aperture_t;
+// ------------------------------------------------------------------
+extern void kmt_mem_test();
+
+// ==================================================================
+// queue
+// ==================================================================
+struct process_doorbells {
+	bool use_gpuvm;
+	uint32_t size;
+	void *mapping;
+	pthread_mutex_t mutex;
+};
+extern void kmt_queue_test();

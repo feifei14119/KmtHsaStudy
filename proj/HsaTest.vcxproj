@@ -36,6 +36,7 @@
     <ClCompile Include="..\src\hsa_test.cpp" />
     <ClCompile Include="..\src\kmt_info_test.cpp" />
     <ClCompile Include="..\src\kmt_mem_test.cpp" />
+    <ClCompile Include="..\src\kmt_queue_test.cpp" />
     <ClCompile Include="..\src\kmt_test.cpp" />
     <ClCompile Include="..\src\main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
