@@ -30,7 +30,7 @@ void kmt_info_test()
 	printf("read gpu_id from %s.\n", (KFD_NODES_PATH + string("/x/gpu_id")).data());
 	for (int i = 0; i < gKmtNodeNum; i++)
 	{
-		int gpu_id = readIntKey(KFD_NODES(i) + string("/gpu_id"));
+		int gpu_id = readIntKey(KFD_NODE(i) + string("/gpu_id"));
 		printf("node %d gpu_id = %d.\n", i, gpu_id);
 		if (gpu_id != 0) 
 			gGpuId = gpu_id;

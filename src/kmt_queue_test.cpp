@@ -6,6 +6,24 @@
 
 #include "kmt_test.h"
 
+struct queue 
+{
+	uint32_t queue_id;
+	uint64_t wptr;
+	uint64_t rptr;
+	void *eop_buffer;
+	void *ctx_save_restore;
+	uint32_t ctx_save_restore_size;
+	uint32_t ctl_stack_size;
+	const struct device_info *dev_info;
+	bool use_ats;
+	/* This queue structure is allocated from GPU with page aligned size
+	 * but only small bytes are used. We use the extra space in the end for
+	 * cu_mask bits array.
+	 */
+	uint32_t cu_mask_count; /* in bits */
+	uint32_t cu_mask[0];
+};
 
 static unsigned int num_doorbells;
 static struct process_doorbells *doorbells;
@@ -35,6 +53,12 @@ void init_process_doorbells()
 	num_doorbells = gKmtNodeNum;
 }
 
+void create_queue()
+{
+	printf("=======================\n");
+	printf("create queue.\n");
+}
+
 // ==================================================================
 // ==================================================================
 void kmt_queue_test()
@@ -44,4 +68,6 @@ void kmt_queue_test()
 	printf("***********************\n");
 
 	init_process_doorbells();
+	create_queue();
+	printf("\n");
 }

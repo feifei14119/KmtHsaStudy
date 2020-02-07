@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int gNodeNum; int gNodeId = 0;
+int gNodeNum; int gNodeId = 1;
 int gGpuNodeNum = 0; std::vector<uint32_t> gGpuNodeIds;
 int gLinkNum; int gLinkId;
 int gCacheNum; int gCacheId;
@@ -71,6 +71,7 @@ string heaptype_to_string(HSA_HEAPTYPE t)
 	case HSA_HEAPTYPE_GPU_LDS: return "LDS";
 	case HSA_HEAPTYPE_GPU_SCRATCH: return "SCRATCH";
 	case HSA_HEAPTYPE_DEVICE_SVM: return "SVM";
+	case HSA_HEAPTYPE_MMIO_REMAP: return "REMAPPED MMIO";
 	}
 }
 void hsa_mem_info(int node_id, int num_mem)

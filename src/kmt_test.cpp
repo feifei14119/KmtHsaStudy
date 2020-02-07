@@ -6,7 +6,8 @@ void kmt_test()
 
 	kmt_info_test();
 	kmt_mem_test();
-	kmt_queue_test();
+	kmt_topology_test(); // mast behind mem_test()
+	kmt_queue_test(); 
 
 	kmt_test_close();
 }
@@ -22,12 +23,12 @@ int kmtIoctl(int fd, unsigned long request, void *arg)
 	return ret;
 }
 
-int readIntKey(std::string file, std::string key)
+uint64_t readIntKey(std::string file, std::string key)
 {
 	int page_size = 4096;
 	FILE * fd = fopen(file.data(), "r");
 
-	int prop_val;
+	uint64_t prop_val;
 	if (key == "")
 	{
 		fscanf(fd, "%ul", &prop_val);

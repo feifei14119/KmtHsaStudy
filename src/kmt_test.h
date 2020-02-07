@@ -37,12 +37,17 @@ using namespace std;
 
 #define KFD_DEVICE						"/dev/kfd"
 #define DRM_RENDER_PATH					"/dev/dri"
-#define DRM_RENDER_DEVICE(drm_minor)	string(std::string("/dev/dri/renderD") + std::to_string(drm_minor)).data()
+#define DRM_RENDER_DEVICE(drm_minor)	std::string(std::string("/dev/dri/renderD") + std::to_string(drm_minor)).data()
 #define KFD_GENERATION_ID				"/sys/devices/virtual/kfd/kfd/topology/generation_id"
 #define KFD_SYSTEM_PROPERTIES			"/sys/devices/virtual/kfd/kfd/topology/system_properties"
-#define KFD_NODES_PATH					"/sys/devices/virtual/kfd/kfd/topology/nodes"
-#define KFD_NODES(n)					string(std::string("/sys/devices/virtual/kfd/kfd/topology/nodes/") + std::to_string(n)).data()
 #define PROC_CPUINFO_PATH				"/proc/cpuinfo"
+#define KFD_NODES_PATH					"/sys/devices/virtual/kfd/kfd/topology/nodes/"
+#define KFD_NODE(n)						std::string(std::string(KFD_NODES_PATH) + std::to_string(n)).data()
+
+#define KFD_NODE_PROP(n)				std::string(std::string(KFD_NODE(n)) + "/properties").data()
+#define KFD_NODE_MEM_PROP(n,m)			std::string(std::string(KFD_NODE(n)) + "/mem_banks/"+ std::to_string(m) + "/properties").data()
+#define KFD_NODE_CACHE_PROP(n,m)		std::string(std::string(KFD_NODE(n)) + "/caches/"+ std::to_string(m) + "/properties").data()
+#define KFD_NODE_LINK_PROP(n,m)			std::string(std::string(KFD_NODE(n)) + "/io_links/"+ std::to_string(m) + "/properties").data()
 
 extern int kfd_fd;
 extern int gGpuId;
@@ -52,7 +57,7 @@ extern void kmt_test();
 extern void kmt_info_test();
 
 extern int kmtIoctl(int fd, unsigned long request, void *arg);
-extern int readIntKey(std::string file, std::string key = "");
+extern uint64_t readIntKey(std::string file, std::string key = "");
 
 // ==================================================================
 // red-black tree
@@ -142,6 +147,19 @@ typedef struct
 } manageable_aperture_t;
 // ------------------------------------------------------------------
 extern void kmt_mem_test();
+
+// ==================================================================
+// topology
+// ==================================================================
+typedef struct 
+{
+	uint32_t gpu_id;
+	HsaNodeProperties node;
+	HsaMemoryProperties *mem;     /* node->NumBanks elements */
+	HsaCacheProperties *cache;
+	HsaIoLinkProperties *link;
+} node_props_t;
+extern void kmt_topology_test();
 
 // ==================================================================
 // queue

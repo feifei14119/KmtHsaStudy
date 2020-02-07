@@ -37,6 +37,9 @@
     <ClCompile Include="..\src\kmt_queue_test.cpp">
       <Filter>src\kmt</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\kmt_topology_test.cpp">
+      <Filter>src\kmt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\common\ff_basic.h">

@@ -38,6 +38,7 @@
     <ClCompile Include="..\src\kmt_mem_test.cpp" />
     <ClCompile Include="..\src\kmt_queue_test.cpp" />
     <ClCompile Include="..\src\kmt_test.cpp" />
+    <ClCompile Include="..\src\kmt_topology_test.cpp" />
     <ClCompile Include="..\src\main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
