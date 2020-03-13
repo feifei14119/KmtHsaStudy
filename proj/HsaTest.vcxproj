@@ -27,10 +27,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\common\ff_cmd_args.cpp" />
-    <ClCompile Include="..\common\ff_file_opt.cpp" />
-    <ClCompile Include="..\common\ff_log.cpp" />
-    <ClCompile Include="..\common\ff_timer.cpp" />
     <ClCompile Include="..\src\hsa_info_test.cpp" />
     <ClCompile Include="..\src\hsa_mem_test.cpp" />
     <ClCompile Include="..\src\hsa_test.cpp" />
@@ -44,13 +40,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\common\ff_basic.h" />
-    <ClInclude Include="..\common\ff_cmd_args.h" />
-    <ClInclude Include="..\common\ff_file_opt.h" />
-    <ClInclude Include="..\common\ff_log.h" />
-    <ClInclude Include="..\common\ff_math.h" />
-    <ClInclude Include="..\common\ff_timer.h" />
-    <ClInclude Include="..\common\ff_utils.h" />
     <ClInclude Include="..\libhsakmt\hsakmt.h" />
     <ClInclude Include="..\libhsakmt\hsakmttypes.h" />
     <ClInclude Include="..\libhsakmt\linux\kfd_ioctl.h" />
@@ -66,6 +55,7 @@
     <ApplicationTypeRevision>1.0</ApplicationTypeRevision>
     <TargetLinuxPlatform>Generic</TargetLinuxPlatform>
     <LinuxProjectType>{D51BCBC9-82E9-4017-911E-C93873C4EA2B}</LinuxProjectType>
+    <ProjectName>hsa_test</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
@@ -82,7 +72,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
-    <RemoteRootDir>~/projects/HsaTest/</RemoteRootDir>
+    <RemoteRootDir>~/projects/hsa_test/</RemoteRootDir>
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -99,7 +89,7 @@
     <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
     <RemoteLdToolExe>g++</RemoteLdToolExe>
     <RemoteProjectDir>$(RemoteRootDir)/$(ProjectName)/</RemoteProjectDir>
-    <OutDir>$(ProjectDir)..\..\out\</OutDir>
+    <OutDir>$(ProjectDir)..\out\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

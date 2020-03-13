@@ -1,18 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\common\ff_cmd_args.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\ff_file_opt.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\ff_log.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\common\ff_timer.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -42,27 +30,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\common\ff_basic.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\ff_cmd_args.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\ff_file_opt.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\ff_log.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\ff_math.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\ff_timer.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\ff_utils.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClInclude Include="..\libhsakmt\hsakmt.h">
       <Filter>hsakmt</Filter>
     </ClInclude>
@@ -80,9 +47,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="common">
-      <UniqueIdentifier>{e27dbd68-26f7-4d90-9e51-2234e3d21536}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{948835d9-7817-4f3e-9af1-65d036f0bd0b}</UniqueIdentifier>
     </Filter>

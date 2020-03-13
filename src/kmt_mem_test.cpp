@@ -352,52 +352,6 @@ int _fmm_map_to_gpu(manageable_aperture_t *app, void *address, uint64_t size, vm
 
 	return ret;
 }
-void fmm_map_to_gpu(void *address, uint64_t size, uint64_t *gpuvm_address)
-{
-	printf("-----------------------\n");
-	printf("map allocated memory to gpu\n");
-	manageable_aperture_t *aperture;
-	vm_object_t *object;
-	uint32_t i;
-	int ret;
-
-	/* Special handling for scratch memory */
-	if (address >= scratch_physical.base &&	address <= scratch_physical.limit)
-	{
-		//return _fmm_map_to_gpu_scratch(&scratch_physical, address, size);
-	}
-
-	object = vm_obj;
-	aperture = &svm_dgpu_alt_aperture;
-	all_gpu_id_array = (uint32_t*)malloc(sizeof(uint32_t) * 1);
-	all_gpu_id_array[0] = gGpuId;
-	all_gpu_id_array_size = 1;
-	all_gpu_id_array_size *= sizeof(uint32_t);
-	/* Successful vm_find_object returns with the aperture locked */
-
-	if (aperture == &cpuvm_aperture)
-	{
-		/* Prefetch memory on APUs with dummy-reads */
-		//fmm_check_user_memory(address, size);
-		ret = 0;
-	}
-	else if (object->userptr)
-	{
-		//ret = _fmm_map_to_gpu_userptr(address, size, gpuvm_address, object);
-	}
-	else
-	{
-		ret = _fmm_map_to_gpu(aperture, address, size, object, NULL, 0);
-		/* Update alternate GPUVM address only for
-		 * CPU-invisible apertures on old APUs
-		 */
-		if (!ret && gpuvm_address && !aperture->is_cpu_accessible)
-			*gpuvm_address = VOID_PTRS_SUB(object->start, aperture->base);
-	}
-
-	//	pthread_mutex_unlock(&aperture->fmm_mutex);
-	printf("\n");
-}
 
 // ==================================================================
 // drm operat
@@ -656,6 +610,52 @@ void * fmm_allocate_device(uint64_t MemorySizeInBytes, HsaMemFlags flags)
 	}
 
 	return mem;
+}
+void fmm_map_to_gpu(void *address, uint64_t size, uint64_t *gpuvm_address)
+{
+	printf("-----------------------\n");
+	printf("map allocated memory to gpu\n");
+	manageable_aperture_t *aperture;
+	vm_object_t *object;
+	uint32_t i;
+	int ret;
+
+	/* Special handling for scratch memory */
+	if (address >= scratch_physical.base &&	address <= scratch_physical.limit)
+	{
+		//return _fmm_map_to_gpu_scratch(&scratch_physical, address, size);
+	}
+
+	object = vm_obj;
+	aperture = &svm_dgpu_alt_aperture;
+	all_gpu_id_array = (uint32_t*)malloc(sizeof(uint32_t) * 1);
+	all_gpu_id_array[0] = gGpuId;
+	all_gpu_id_array_size = 1;
+	all_gpu_id_array_size *= sizeof(uint32_t);
+	/* Successful vm_find_object returns with the aperture locked */
+
+	if (aperture == &cpuvm_aperture)
+	{
+		/* Prefetch memory on APUs with dummy-reads */
+		//fmm_check_user_memory(address, size);
+		ret = 0;
+	}
+	else if (object->userptr)
+	{
+		//ret = _fmm_map_to_gpu_userptr(address, size, gpuvm_address, object);
+	}
+	else
+	{
+		ret = _fmm_map_to_gpu(aperture, address, size, object, NULL, 0);
+		/* Update alternate GPUVM address only for
+		 * CPU-invisible apertures on old APUs
+		 */
+		if (!ret && gpuvm_address && !aperture->is_cpu_accessible)
+			*gpuvm_address = VOID_PTRS_SUB(object->start, aperture->base);
+	}
+
+	//	pthread_mutex_unlock(&aperture->fmm_mutex);
+	printf("\n");
 }
 
 // ==================================================================

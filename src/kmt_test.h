@@ -19,7 +19,6 @@
 
 using namespace std;
 
-
 #define kmt_test_open() do{\
 	kfd_fd = open(KFD_DEVICE, O_RDWR | O_CLOEXEC);\
 	if (kfd_fd != -1)\
@@ -147,6 +146,8 @@ typedef struct
 } manageable_aperture_t;
 // ------------------------------------------------------------------
 extern void kmt_mem_test();
+extern void * fmm_allocate_device(uint64_t MemorySizeInBytes, HsaMemFlags flags);
+extern void fmm_map_to_gpu(void *address, uint64_t size, uint64_t *gpuvm_address);
 
 // ==================================================================
 // topology
