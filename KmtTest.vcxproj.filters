@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{948835d9-7817-4f3e-9af1-65d036f0bd0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kfd">
+      <UniqueIdentifier>{02a424e1-26f8-4734-9ee3-454d38e2e27c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libelf">
+      <UniqueIdentifier>{ec0f6d65-cbd2-4ba0-b7db-8fa6f641b9bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libelf\inc">
+      <UniqueIdentifier>{72afa41b-fedf-42fb-96b4-d93f4670e300}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="libhsakmt\linux\kfd_ioctl.h">
+      <Filter>kfd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kmt_test.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="libelf\libelf.h">
+      <Filter>libelf</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_elf_image.hpp">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_code.hpp">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_code_util.hpp">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_common.h">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_elf.h">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_kernel_code.h">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\hsa.h">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\hsa_ext_finalize.h">
+      <Filter>libelf\inc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\kmt_test.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mem_test.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\queue_test.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="libamdhsacode\amd_elf_image.cpp">
+      <Filter>libelf</Filter>
+    </ClCompile>
+    <ClCompile Include="libamdhsacode\amd_hsa_code.cpp">
+      <Filter>libelf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdma_test.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\signal_test.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\code_obj_test.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp">
+      <Filter>libelf</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="libelf\libelf.a">
+      <Filter>libelf</Filter>
+    </Library>
+    <Library Include="libelf\libelf-0.165.so">
+      <Filter>libelf</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

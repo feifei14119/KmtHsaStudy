@@ -30,16 +30,20 @@ hsa_status_t find_gpu_device(hsa_agent_t agent, void *data)
   hsa_status_t hsa_error_code = hsa_agent_get_info(agent, HSA_AGENT_INFO_DEVICE, &hsa_device_type);
   if (hsa_error_code != HSA_STATUS_SUCCESS) { return hsa_error_code; }
 
-  if (hsa_device_type == HSA_DEVICE_TYPE_GPU) {
+  if (hsa_device_type == HSA_DEVICE_TYPE_GPU)
+  {
     Dispatch* dispatch = static_cast<Dispatch*>(data);
-    if (!dispatch->HasAgent()) {
+    if (!dispatch->HasAgent())
+	{
       dispatch->SetAgent(agent);
     }
   }
 
-  if (hsa_device_type == HSA_DEVICE_TYPE_CPU) {
+  if (hsa_device_type == HSA_DEVICE_TYPE_CPU) 
+  {
     Dispatch* dispatch = static_cast<Dispatch*>(data);
-    if (!dispatch->HasCpuAgent()) {
+    if (!dispatch->HasCpuAgent()) 
+	{
       dispatch->SetCpuAgent(agent);
     }
   }
@@ -155,12 +159,12 @@ bool Dispatch::RunDispatch()
     (1 << HSA_PACKET_HEADER_BARRIER) |
     (HSA_FENCE_SCOPE_SYSTEM << HSA_PACKET_HEADER_ACQUIRE_FENCE_SCOPE) |
     (HSA_FENCE_SCOPE_SYSTEM << HSA_PACKET_HEADER_RELEASE_FENCE_SCOPE);
+	
   uint16_t dim = 1;
-  if (aql->grid_size_y > 1)
-    dim = 2;
-  if (aql->grid_size_z > 1)
-    dim = 3;
-  aql->group_segment_size = group_static_size + group_dynamic_size;
+  if (aql->grid_size_y > 1)    dim = 2;
+  if (aql->grid_size_z > 1)    dim = 3;
+  
+  aql->group_segment_size = group_static_size + group_dynamic_size;  
   uint16_t setup = dim << HSA_KERNEL_DISPATCH_PACKET_SETUP_DIMENSIONS;
   uint32_t header32 = header | (setup << 16);
   #if defined(_WIN32) || defined(_WIN64)  // Windows
@@ -257,8 +261,7 @@ bool Dispatch::SetupExecutable()
   hsa_executable_symbol_t kernel_symbol;
 
   if (!SetupCodeObject()) { return false; }
-  status = hsa_executable_create(HSA_PROFILE_FULL, HSA_EXECUTABLE_STATE_UNFROZEN,
-                                 NULL, &executable);
+  status = hsa_executable_create(HSA_PROFILE_FULL, HSA_EXECUTABLE_STATE_UNFROZEN, NULL, &executable);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_executable_create failed", status); }
 
   // Load code object
@@ -270,20 +273,15 @@ bool Dispatch::SetupExecutable()
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_executable_freeze failed", status); }
 
   // Get symbol handle
-  status = hsa_executable_get_symbol(executable, NULL, "hello_world", agent,
-                                     0, &kernel_symbol);
+  status = hsa_executable_get_symbol(executable, NULL, "hello_world", agent, 0, &kernel_symbol);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_executable_get_symbol failed", status); }
 
   // Get code handle
   uint64_t code_handle;
-  status = hsa_executable_symbol_get_info(kernel_symbol,
-                                          HSA_EXECUTABLE_SYMBOL_INFO_KERNEL_OBJECT,
-                                          &code_handle);
+  status = hsa_executable_symbol_get_info(kernel_symbol, HSA_EXECUTABLE_SYMBOL_INFO_KERNEL_OBJECT, &code_handle);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_executable_symbol_get_info failed", status); }
 
-  status = hsa_executable_symbol_get_info(kernel_symbol,
-                HSA_EXECUTABLE_SYMBOL_INFO_KERNEL_GROUP_SEGMENT_SIZE,
-                &group_static_size);
+  status = hsa_executable_symbol_get_info(kernel_symbol, HSA_EXECUTABLE_SYMBOL_INFO_KERNEL_GROUP_SEGMENT_SIZE, &group_static_size);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_executable_symbol_get_info failed", status); }
 
   aql->kernel_object = code_handle;
