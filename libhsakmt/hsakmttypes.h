@@ -72,6 +72,14 @@ extern "C" {
 
 typedef void*              HSA_HANDLE;
 typedef HSAuint64          HSA_QUEUEID;
+// An HSA_QUEUEID that is never a valid queue ID.
+#define INVALID_QUEUEID 0xFFFFFFFFFFFFFFFFULL
+
+// A PID that is never a valid process ID.
+#define INVALID_PID 0xFFFFFFFF
+
+// // A HSA_NODEID that is never a valid node ID.
+#define INVALID_NODEID 0xFFFFFFFF
 
 // This is included in order to force the alignments to be 4 bytes so that
 // it avoids extra padding added by the compiler when a 64-bit binary is generated.
@@ -97,13 +105,14 @@ typedef enum _HSAKMT_STATUS
     HSAKMT_STATUS_NOT_IMPLEMENTED              = 10, // KFD function is not implemented for this set of paramters
     HSAKMT_STATUS_NOT_SUPPORTED                = 11, // KFD function is not supported on this node
     HSAKMT_STATUS_UNAVAILABLE                  = 12, // KFD function is not available currently on this node (but
-                                                  // may be at a later time)
+                                                     // may be at a later time)
+    HSAKMT_STATUS_OUT_OF_RESOURCES             = 13, // KFD function request exceeds the resources currently available.
 
     HSAKMT_STATUS_KERNEL_IO_CHANNEL_NOT_OPENED = 20, // KFD driver path not opened
     HSAKMT_STATUS_KERNEL_COMMUNICATION_ERROR   = 21, // user-kernel mode communication failure
     HSAKMT_STATUS_KERNEL_ALREADY_OPENED        = 22, // KFD driver path already opened
     HSAKMT_STATUS_HSAMMU_UNAVAILABLE           = 23, // ATS/PRI 1.1 (Address Translation Services) not available
-                                                  // (IOMMU driver not installed or not-available)
+                                                     // (IOMMU driver not installed or not-available)
 
     HSAKMT_STATUS_WAIT_FAILURE                 = 30, // The wait operation failed
     HSAKMT_STATUS_WAIT_TIMEOUT                 = 31, // The wait operation timed out
@@ -190,16 +199,41 @@ typedef union
         unsigned int VALimit             : 1;    // This node GPU has limited VA range for platform
                                                  // (typical 40bit). Affects shared VM use for 64bit apps
         unsigned int WatchPointsSupported: 1;	 // Indicates if Watchpoints are available on the node.
-        unsigned int WatchPointsTotalBits: 4;    // ld(Watchpoints) available. To determine the number use 2^value
+        unsigned int WatchPointsTotalBits: 4;    // Watchpoints available. To determine the number use 2^value
 
         unsigned int DoorbellType        : 2;    // 0: This node has pre-1.0 doorbell characteristic
                                                  // 1: This node has 1.0 doorbell characteristic
                                                  // 2,3: reserved for future use
-        unsigned int AQLQueueDoubleMap    : 1;	 // The unit needs a VA “double map”
-        unsigned int Reserved            : 17;
+        unsigned int AQLQueueDoubleMap   : 1;	 // The unit needs a VA “double map”
+        unsigned int DebugTrapSupported  : 1;    // Indicates if Debug Trap is supported on the node.
+        unsigned int WaveLaunchTrapOverrideSupported: 1; // Indicates if Wave Launch Trap Override is supported on the node.
+        unsigned int WaveLaunchModeSupported: 1; // Indicates if Wave Launch Mode is supported on the node.
+        unsigned int PreciseMemoryOperationsSupported: 1; // Indicates if Precise Memory Operations are supported on the node.
+        unsigned int SRAM_EDCSupport: 1;         // Indicates if GFX internal SRAM EDC/ECC functionality is active
+        unsigned int Mem_EDCSupoort: 1;          // Indicates if GFX internal DRAM/HBM EDC/ECC functionality is active
+        unsigned int RASEventNotify: 1;          // Indicates if GFX extended RASFeatures and RAS EventNotify status is available
+        unsigned int ASICRevision: 4;            // Indicates the ASIC revision of the chip on this node.
+        unsigned int Reserved            : 6;
     } ui32;
 } HSA_CAPABILITY;
 
+// Debug Properties and values
+// HSA runtime may expose a subset of the capabilities outlined to the applicati
+typedef union
+{
+    HSAuint64 Value;
+    struct
+    {
+        HSAuint64 WatchAddrMaskLoBit: 4; // Only bits
+                                        // WatchAddrMaskLoBit..WatchAddrMaskHiBit
+                                        // of the
+        HSAuint64 WatchAddrMaskHiBit: 6; // watch address mask are used.
+                                         // 0 is the least significant bit.
+        HSAuint64 TrapDataCount: 4;      // Number of 32 bit TrapData
+                                         // registers supported.
+        HSAuint64 Reserved: 50;              //
+    };
+} HSA_DEBUG_PROPERTIES;
 
 //
 // HSA node properties. This structure is an output parameter of hsaKmtGetNodeProperties()
@@ -263,7 +297,20 @@ typedef struct _HsaNodeProperties
                                        // Unicode string
     HSAuint8        AMDName[HSA_PUBLIC_NAME_SIZE];   //CAL Name of the "device", ASCII
     HSA_ENGINE_VERSION uCodeEngineVersions;
-    HSAuint8        Reserved[60];
+    HSA_DEBUG_PROPERTIES DebugProperties; // Debug properties of this node.
+    HSAuint64       HiveID;            // XGMI Hive the GPU node belongs to in the system. It is an opaque and static
+                                       // number hash created by the PSP
+    HSAuint32       NumSdmaEngines;    // number of PCIe optimized SDMA engines
+    HSAuint32       NumSdmaXgmiEngines;// number of XGMI optimized SDMA engines
+
+    HSAuint8        NumSdmaQueuesPerEngine;// number of SDMA queue per one engine
+    HSAuint8        NumCpQueues; // number of Compute queues
+    HSAuint8        NumGws;            // number of GWS barriers
+    HSAuint8        Reserved2;
+
+    HSAuint32       Domain;            // PCI domain of the GPU
+    HSAuint64       UniqueID;          // Globally unique immutable id
+    HSAuint8        Reserved[20];
 } HsaNodeProperties;
 
 
@@ -278,7 +325,7 @@ typedef enum _HSA_HEAPTYPE
     HSA_HEAPTYPE_GPU_LDS               = 4, // GPU internal memory (LDS)
     HSA_HEAPTYPE_GPU_SCRATCH           = 5, // GPU special memory (scratch)
     HSA_HEAPTYPE_DEVICE_SVM            = 6, // sys-memory mapped by device page tables
-	HSA_HEAPTYPE_MMIO_REMAP			   = 7, // remapped mmio, such as hdp flush registers
+    HSA_HEAPTYPE_MMIO_REMAP            = 7, // remapped mmio, such as hdp flush registers
 
     HSA_HEAPTYPE_NUMHEAPTYPES,
     HSA_HEAPTYPE_SIZE                  = 0xFFFFFFFF
@@ -389,7 +436,12 @@ typedef enum _HSA_IOLINKTYPE {
     HSA_IOLINK_TYPE_RAPID_IO      = 8,
     HSA_IOLINK_TYPE_INFINIBAND    = 9,
     HSA_IOLINK_TYPE_RESERVED3     = 10,
-    HSA_IOLINKTYPE_OTHER          = 11,
+    HSA_IOLINK_TYPE_XGMI          = 11,
+    HSA_IOLINK_TYPE_XGOP          = 12,
+    HSA_IOLINK_TYPE_GZ            = 13,
+    HSA_IOLINK_TYPE_ETHERNET_RDMA = 14,
+    HSA_IOLINK_TYPE_RDMA_OTHER    = 15,
+    HSA_IOLINK_TYPE_OTHER         = 16,
     HSA_IOLINKTYPE_NUMIOLINKTYPES,
     HSA_IOLINKTYPE_SIZE           = 0xFFFFFFFF
 } HSA_IOLINKTYPE;
@@ -487,7 +539,9 @@ typedef struct _HsaMemFlags
             unsigned int AQLQueueMemory: 1; // default = 0; If 1: The caller indicates that the memory will be used as AQL queue memory.
 					    // The KFD will ensure that the memory returned is allocated in the optimal memory location
 					    // and optimal alignment requirements
-            unsigned int Reserved    : 17;
+            unsigned int FixedAddress : 1; // Allocate memory at specified virtual address. Fail if address is not free.
+            unsigned int NoNUMABind:    1; // Don't bind system memory to a specific NUMA node
+            unsigned int Reserved    : 15;
 
         } ui32;
         HSAuint32 Value;
@@ -574,9 +628,10 @@ typedef enum _HSA_QUEUE_PRIORITY
 typedef enum _HSA_QUEUE_TYPE
 {
     HSA_QUEUE_COMPUTE            = 1,  // AMD PM4 compatible Compute Queue
-    HSA_QUEUE_SDMA               = 2,  // SDMA Queue, used for data transport and format conversion (e.g. (de-)tiling, etc).
+    HSA_QUEUE_SDMA               = 2,  // PCIe optimized SDMA Queue, used for data transport and format conversion (e.g. (de-)tiling, etc).
     HSA_QUEUE_MULTIMEDIA_DECODE  = 3,  // reserved, for HSA multimedia decode queue
     HSA_QUEUE_MULTIMEDIA_ENCODE  = 4,  // reserved, for HSA multimedia encode queue
+    HSA_QUEUE_SDMA_XGMI          = 5,  // XGMI optimized SDMA Queue
 
     // the following values indicate a queue type permitted to reference OS graphics
     // resources through the interoperation API. See [5] "HSA Graphics Interoperation
@@ -589,11 +644,40 @@ typedef enum _HSA_QUEUE_TYPE
 
     HSA_QUEUE_COMPUTE_AQL          = 21, // HSA AQL packet compatible Compute Queue
     HSA_QUEUE_DMA_AQL              = 22, // HSA AQL packet compatible DMA Queue
+    HSA_QUEUE_DMA_AQL_XGMI         = 23, // HSA AQL packet compatible XGMI optimized DMA Queue
 
     // more types in the future
 
     HSA_QUEUE_TYPE_SIZE            = 0xFFFFFFFF     //aligns to 32bit enum
 } HSA_QUEUE_TYPE;
+
+/**
+  The user context save area starts at offset 0 with the
+  HsaUserContextSaveAreaHeader header followed by the space for a
+  user space copy of the control stack and the user space wave save
+  state. The area must be dword aligned. The context save area is
+  valid for the duration that the associated queue exists. When a
+  context save occurs, the HsaUserContextSaveAreaHeader header will
+  be updated with information about the context save. The context save
+  area is not modified by any other operation, including a context
+  resume.
+ */
+
+typedef struct
+{
+    HSAuint32 ControlStackOffset;  // Byte offset from start of user context
+                                 // save area to the last saved top (lowest
+                                 // address) of control stack data. Must be
+                                 // 4 byte aligned.
+    HSAuint32 ControlStackSize;  // Byte size of the last saved control stack
+                                 // data. Must be 4 byte aligned.
+    HSAuint32 WaveStateOffset;   // Byte offset from start of user context save
+                                 // area to the last saved base (lowest address)
+                                 // of wave state data. Must be 4 byte aligned.
+    HSAuint32 WaveStateSize;     // Byte size of the last saved wave state data.
+                                 // Must be 4 byte aligned.
+} HsaUserContextSaveAreaHeader;
+
 
 typedef struct
 {
@@ -610,7 +694,7 @@ typedef struct
 	HSAuint64 SaveAreaSizeInBytes;	// Must be 4-Byte aligned
 	HSAuint32* ControlStackTop;	// ptr to the TOS
 	HSAuint64 ControlStackUsedInBytes; // Must be 4-Byte aligned
-	HSAuint64 Reserved1;		// runtime/system CU assignment
+	HsaUserContextSaveAreaHeader *SaveAreaHeader;
 	HSAuint64 Reserved2;		// runtime/system CU assignment
 } HsaQueueInfo;
 
@@ -691,9 +775,51 @@ typedef enum _HSA_DBG_WATCH_MODE
     HSA_DBG_WATCH_NONREAD     = 1, //Write or Atomic operations only
     HSA_DBG_WATCH_ATOMIC      = 2, //Atomic Operations only
     HSA_DBG_WATCH_ALL         = 3, //Read, Write or Atomic operations
-    HSA_DBG_WATCH_NUM,
-    HSA_DBG_WATCH_SIZE        = 0xFFFFFFFF
+    HSA_DBG_WATCH_NUM
 } HSA_DBG_WATCH_MODE;
+
+typedef enum _HSA_DBG_TRAP_OVERRIDE
+{
+  HSA_DBG_TRAP_OVERRIDE_OR      = 0, // Bitwise OR exception mask with HSA_DBG_TRAP_MASK
+  HSA_DBG_TRAP_OVERRIDE_REPLACE = 1, // Replace exception mask with HSA_DBG_TRAP_MASK
+  HSA_DBG_TRAP_OVERRIDE_NUM
+} HSA_DBG_TRAP_OVERRIDE;
+
+typedef enum _HSA_DBG_TRAP_MASK
+{
+  HSA_DBG_TRAP_MASK_FP_INVALID           = 1,   // Floating point invalid operation
+  HSA_DBG_TRAP_MASK_FP_INPUT_DENOMAL     = 2,   // Floating point input denormal
+  HSA_DBG_TRAP_MASK_FP_DIVIDE_BY_ZERO    = 4,   // Floating point divide by zero
+  HSA_DBG_TRAP_MASK_FP_OVERFLOW          = 8,   // Floating point overflow
+  HSA_DBG_TRAP_MASK_FP_UNDERFLOW         = 16,  // Floating point underflow
+  HSA_DBG_TRAP_MASK_FP_INEXACT           = 32,  // Floating point inexact
+  HSA_DBG_TRAP_MASK_INT_DIVIDE_BY_ZERO   = 64,  // Integer divide by zero
+  HSA_DBG_TRAP_MASK_DBG_ADDRESS_WATCH    = 128, // Debug address watch
+  HSA_DBG_TRAP_MASK_DBG_MEMORY_VIOLATION = 256  // Memory violation
+} HSA_DBG_TRAP_MASK;
+
+typedef enum _HSA_DBG_WAVE_LAUNCH_MODE
+{
+    HSA_DBG_WAVE_LAUNCH_MODE_NORMAL      = 0, // Wavefront launched normally.
+    HSA_DBG_WAVE_LAUNCH_MODE_HALT        = 1, // Wavefront launched in halted mode.
+    HSA_DBG_WAVE_LAUNCH_MODE_KILL        = 2, // Wavefront is launched but immediately
+                                              // terminated before executing any instructions.
+    HSA_DBG_WAVE_LAUNCH_MODE_SINGLE_STEP = 3, // Wavefront is launched in single step (debug)
+                                              // mode. If debug trap is enabled by
+                                              // hsaKmtDbgEnableDebugTrap() then causes a
+                                              // trap after executing each instruction,
+                                              // otherwise behaves the same as
+                                              // HSA_DBG_WAVE_LAUNCH_MODE_NORMAL.
+    HSA_DBG_WAVE_LAUNCH_MODE_DISABLE     = 4, // Disable launching any new waves.
+    HSA_DBG_WAVE_LAUNCH_MODE_NUM
+} HSA_DBG_WAVE_LAUNCH_MODE;
+
+/**
+ *    There are no flags currently defined.
+ */
+typedef enum HSA_DBG_NODE_CONTROL {
+    HSA_DBG_NODE_CONTROL_FLAG_MAX = 0x01
+} HSA_DBG_NODE_CONTROL;
 
 
 //This structure is hardware specific and may change in the future
@@ -748,6 +874,18 @@ typedef enum _HSA_EVENTTYPE
     HSA_EVENTTYPE_MAXID,
     HSA_EVENTTYPE_TYPE_SIZE                  = 0xFFFFFFFF
 } HSA_EVENTTYPE;
+
+
+//
+// Definitions for types of pending debug events
+//
+typedef enum _HSA_DEBUG_EVENT_TYPE
+{
+	HSA_DEBUG_EVENT_TYPE_NONE				= 0,
+	HSA_DEBUG_EVENT_TYPE_TRAP				= 1,
+	HSA_DEBUG_EVENT_TYPE_VMFAULT			= 2,
+	HSA_DEBUG_EVENT_TYPE_TRAP_VMFAULT		= 3
+} HSA_DEBUG_EVENT_TYPE;
 
 typedef HSAuint32  HSA_EVENTID;
 
@@ -816,9 +954,11 @@ typedef struct _HsaAccessAttributeFailure
     unsigned int ReadOnly    : 1;  // Write access to a read-only page
     unsigned int NoExecute   : 1;  // Execute access to a page marked NX
     unsigned int GpuAccess   : 1;  // Host access only
-    unsigned int ECC         : 1;  // ECC failure (if supported by HW)
+    unsigned int ECC         : 1;  // RAS ECC failure (notification of DRAM ECC - non-recoverable - error, if supported by HW)
     unsigned int Imprecise   : 1;  // Can't determine the exact fault address
-    unsigned int Reserved    : 26; // must be 0
+    unsigned int ErrorType   : 3;  // Indicates RAS errors or other errors causing the access to GPU to fail
+                                      // 0 = no RAS error, 1 = ECC_SRAM, 2 = Link_SYNFLOOD (poison), 3 = GPU hang (not attributable to a specific cause), other values reserved
+    unsigned int Reserved    : 23; // must be 0
 } HsaAccessAttributeFailure;
 
 // data associated with HSA_EVENTID_MEMORY
@@ -1124,7 +1264,8 @@ typedef enum _HSA_POINTER_TYPE {
     HSA_POINTER_UNKNOWN = 0,
     HSA_POINTER_ALLOCATED = 1,           // Allocated with hsaKmtAllocMemory (except scratch)
     HSA_POINTER_REGISTERED_USER = 2,     // Registered user pointer
-    HSA_POINTER_REGISTERED_GRAPHICS = 3  // Registered graphics buffer
+    HSA_POINTER_REGISTERED_GRAPHICS = 3, // Registered graphics buffer
+    HSA_POINTER_REGISTERED_SHARED = 4    // Registered shared buffer (IPC)
                                          // (hsaKmtRegisterGraphicsToNodes)
 } HSA_POINTER_TYPE;
 

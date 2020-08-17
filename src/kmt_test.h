@@ -76,6 +76,7 @@ extern void FreeMemoryGPUVM(void * memAddr);
 extern void FreeMemoryMMIO(void * memAddr);
 
 extern void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, HsaQueueResource * queue_src);
+extern void KmtDestroyQueue(uint64_t QueueId);
 extern HsaEvent * CreateSignal();
 
 
@@ -100,3 +101,6 @@ typedef struct
 } node_props_t;
 extern void kmt_topology_test();
 #endif
+
+extern void SubmitPacketSdmaQueue();
+extern void SdmaConcurrentCopies();

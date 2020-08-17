@@ -27,6 +27,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="kmttest\BasePacket.hpp" />
+    <ClInclude Include="kmttest\BaseQueue.hpp" />
+    <ClInclude Include="kmttest\KFDTestUtil.hpp" />
+    <ClInclude Include="kmttest\SDMAPacket.hpp" />
+    <ClInclude Include="kmttest\SDMAQueue.hpp" />
+    <ClInclude Include="kmttest\sdma_pkt_struct.h" />
     <ClInclude Include="libamdhsacode\amd_elf_image.hpp" />
     <ClInclude Include="libamdhsacode\amd_hsa_code.hpp" />
     <ClInclude Include="libamdhsacode\amd_hsa_code_util.hpp" />
@@ -36,10 +42,17 @@
     <ClInclude Include="libamdhsacode\hsa.h" />
     <ClInclude Include="libamdhsacode\hsa_ext_finalize.h" />
     <ClInclude Include="libelf\libelf.h" />
+    <ClInclude Include="libhsakmt\hsakmt.h" />
+    <ClInclude Include="libhsakmt\hsakmttypes.h" />
     <ClInclude Include="libhsakmt\linux\kfd_ioctl.h" />
     <ClInclude Include="src\kmt_test.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="kmttest\BasePacket.cpp" />
+    <ClCompile Include="kmttest\BaseQueue.cpp" />
+    <ClCompile Include="kmttest\KFDTestUtil.cpp" />
+    <ClCompile Include="kmttest\SDMAPacket.cpp" />
+    <ClCompile Include="kmttest\SDMAQueue.cpp" />
     <ClCompile Include="libamdhsacode\amd_elf_image.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp" />
@@ -113,7 +126,7 @@
       <StrictAliasing>false</StrictAliasing>
       <ThreadSafeStatics>Yes</ThreadSafeStatics>
       <ExceptionHandling>Enabled</ExceptionHandling>
-      <AdditionalIncludeDirectories>C:\Users\feiw\source\repos\kmt_test\libelf;C:\Users\feiw\source\repos\kmt_test\libamdhsacode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\feiw\source\repos\kmt_test\libelf;C:\Users\feiw\source\repos\kmt_test\libamdhsacode;C:\Users\feiw\source\repos\kmt_test\kmttest;C:\Users\feiw\source\repos\kmt_test\libhsakmt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PositionIndependentCode>true</PositionIndependentCode>
     </ClCompile>
     <PreBuildEvent>
@@ -122,8 +135,8 @@
     </PreBuildEvent>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <LibraryDependencies>elf;%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>C:\Users\feiw\source\repos\kmt_test\libelf;/home/feifei/projects/kmt_test/libelf;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>elf;hsakmt;%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>C:\Users\feiw\source\repos\kmt_test\libelf;/home/feifei/projects/kmt_test/libelf;/opt/rocm/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

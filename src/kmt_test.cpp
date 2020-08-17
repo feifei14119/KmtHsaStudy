@@ -17,9 +17,12 @@ void RunTest()
 
 	//MemTest();
 	//SignalTest();
-	//SdmaTest();
-	CodeObjTest();
+	//CodeObjTest();
 	//QueueTest();
+	SdmaTest();
+
+	//SubmitPacketSdmaQueue();
+	//SdmaConcurrentCopies();
 
 	Close();
 }
