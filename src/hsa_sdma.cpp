@@ -1,4 +1,5 @@
-#include "kmt_test.h"
+#include "kmt.h"
+#include "hsa.h"
 
 #define MAX_SDMA_COPY_SIZE (0x3fffe0) // 4M - 32
 #define SDMA_RINGBUFF_SIZE (4 * 1024)
@@ -177,16 +178,15 @@ static void build_copy_cmd(void * dst, void * src, uint32_t copy_size)
 	printf("\n\n");
 }
 
-void InitSdma()
+void HsaInitSdma()
 {
 	printf("\n==============================================\n");
 	printf("init blit sdma: create sdma copy queue.\n");
 
 	CommandSize = 0;
-	DmaQueueRingBuff = AllocMemoryCPU(SDMA_RINGBUFF_SIZE);
+	DmaQueueRingBuff = HsaAllocCPU(SDMA_RINGBUFF_SIZE);
 	KmtCreateQueue(KFD_IOC_QUEUE_TYPE_SDMA, DmaQueueRingBuff, SDMA_RINGBUFF_SIZE, &QueueResource);
 
-	printf("\n");
 	printf("\tqueue id      = 0x%016lX.\n", QueueResource.QueueId);
 	printf("\twrite pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueWptrValue, *QueueResource.Queue_write_ptr);
 	printf("\tread  pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueRptrValue, *QueueResource.Queue_read_ptr);
@@ -195,34 +195,12 @@ void InitSdma()
 	printf("==============================================\n");
 	printf("\n");
 }
-void SdmaDeInit()
+void HsaDeInitSdma()
 {
 	KmtDestroyQueue(QueueResource.QueueId);
 }
 
-void SdmaCopy(void * dst, void * src, uint32_t copy_size)
-{
-	printf("=============================\n");
-	printf("sdma copy:\n");
-	build_copy_cmd(dst, src, copy_size);
-
-	uint64_t cur_index, new_index;
-	cur_index = *QueueResource.Queue_read_ptr;
-	new_index = cur_index + CommandSize;
-
-	*(QueueResource.Queue_write_ptr_aql) = new_index;
-	*(QueueResource.Queue_DoorBell_aql) = new_index;
-	while (*QueueResource.Queue_write_ptr != *QueueResource.Queue_read_ptr)
-	{
-		usleep(1000);
-	}
-
-	printf("\tread  pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueRptrValue, *(volatile unsigned int *)QueueResource.Queue_read_ptr);
-	printf("\twrite pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueWptrValue, *(volatile unsigned int *)QueueResource.Queue_write_ptr);
-	printf("=============================\n");
-	printf("\n");
-}
-void SdmaWrite(void * dst, uint32_t data)
+void HsaSdmaWrite(void * dst, uint32_t data)
 {
 	printf("=============================\n");
 	printf("sdma write:\n");
@@ -245,96 +223,26 @@ void SdmaWrite(void * dst, uint32_t data)
 	printf("=============================\n");
 	printf("\n");
 }
-
-
-// ==================================================================
-// ==================================================================
-void sdma_test_write()
+void HsaSdmaCopy(void * dst, void * src, uint32_t copy_size)
 {
-	printf("***********************\n");
-	printf("* sdma copy test      *\n");
-	printf("***********************\n");
-
-	uint32_t data = 0x12345678;
-	float * h_A = (float*)AllocMemoryCPU(1024 * sizeof(float));
-
-	InitSdma();
-	SdmaWrite(h_A, data);
-	
-	uint32_t value = *(uint32_t *)h_A;
-	printf("read back value = 0x%08X\n", value);
-
-	SdmaDeInit();
-	printf("\n");
-}
-void sdma_test_copy()
-{
-	printf("***********************\n");
-	printf("* sdma copy test      *\n");
-	printf("***********************\n");
-
-	uint32_t len = 1024;
-	float * h_A, *h_B, *d_C;
-
-	h_A = (float*)AllocMemoryCPU(len * sizeof(float));
-	h_B = (float*)AllocMemoryCPU(len * sizeof(float));
-	d_C = (float*)AllocMemoryGPUVM(len * sizeof(float));
-
-	for (uint32_t i = 0; i < len; i++)
-		h_A[i] = i * 1.0f;
-	for (uint32_t i = 0; i < len; i++)
-		h_B[i] = 0;	
-
-	InitSdma();
-	SdmaCopy(d_C, h_A, len * sizeof(float));
-	SdmaCopy(h_B, d_C, len * sizeof(float));
-	
 	printf("=============================\n");
-	printf("source host data:\n");
-	for (uint32_t i = 0; i < 16; i++)
-	{
-		printf("%.1f, ", h_A[i]);
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("... ...\n");
-	for (uint32_t i = len - 16; i < len; i++)
-	{
-		printf("%.1f, ", h_A[i]);
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("\ndest host data:\n");
-	for (uint32_t i = 0; i < 16; i++)
-	{
-		printf("%.1f, ", h_B[i]);
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("... ...\n");
-	for (uint32_t i = len - 16; i < len; i++)
-	{
-		printf("%.1f, ", h_B[i]);
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("=============================\n");
-	
-	//free(h_A);
-	//free(h_B);
-	FreeMemoryGPUVM(d_C);
+	printf("sdma copy:\n");
+	build_copy_cmd(dst, src, copy_size);
 
-	SdmaDeInit();
+	uint64_t cur_index, new_index;
+	cur_index = *QueueResource.Queue_read_ptr;
+	new_index = cur_index + CommandSize;
+
+	*(QueueResource.Queue_write_ptr_aql) = new_index;
+	*(QueueResource.Queue_DoorBell_aql) = new_index;
+	while (*QueueResource.Queue_write_ptr != *QueueResource.Queue_read_ptr)
+	{
+		usleep(1000);
+	}
+
+	printf("\tread  pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueRptrValue, *(volatile unsigned int *)QueueResource.Queue_read_ptr);
+	printf("\twrite pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueWptrValue, *(volatile unsigned int *)QueueResource.Queue_write_ptr);
+	printf("=============================\n");
 	printf("\n");
 }
 
-
-void SdmaTest()
-{
-	MemInit();
-
-	sdma_test_write();
-	sdma_test_copy();
-
-	MemDeInit();
-}

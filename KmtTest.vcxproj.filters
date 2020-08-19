@@ -13,9 +13,6 @@
     <Filter Include="libelf\inc">
       <UniqueIdentifier>{72afa41b-fedf-42fb-96b4-d93f4670e300}</UniqueIdentifier>
     </Filter>
-    <Filter Include="kmttest">
-      <UniqueIdentifier>{4f63fbc9-c489-4cfb-881b-8cb9e6cfe297}</UniqueIdentifier>
-    </Filter>
     <Filter Include="hsakmt">
       <UniqueIdentifier>{57130583-1c54-4982-97c0-108e234a31ea}</UniqueIdentifier>
     </Filter>
@@ -23,9 +20,6 @@
   <ItemGroup>
     <ClInclude Include="libhsakmt\linux\kfd_ioctl.h">
       <Filter>kfd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\kmt_test.h">
-      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="libelf\libelf.h">
       <Filter>libelf</Filter>
@@ -54,76 +48,46 @@
     <ClInclude Include="libamdhsacode\hsa_ext_finalize.h">
       <Filter>libelf\inc</Filter>
     </ClInclude>
-    <ClInclude Include="libhsakmt\hsakmt.h">
-      <Filter>hsakmt</Filter>
-    </ClInclude>
     <ClInclude Include="libhsakmt\hsakmttypes.h">
       <Filter>hsakmt</Filter>
     </ClInclude>
-    <ClInclude Include="kmttest\BasePacket.hpp">
-      <Filter>kmttest</Filter>
+    <ClInclude Include="src\kmt.h">
+      <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="kmttest\KFDTestUtil.hpp">
-      <Filter>kmttest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\BaseQueue.hpp">
-      <Filter>kmttest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\SDMAPacket.hpp">
-      <Filter>kmttest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\sdma_pkt_struct.h">
-      <Filter>kmttest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\SDMAQueue.hpp">
-      <Filter>kmttest</Filter>
+    <ClInclude Include="src\hsa.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\kmt_test.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\mem_test.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\queue_test.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="libamdhsacode\amd_elf_image.cpp">
       <Filter>libelf</Filter>
     </ClCompile>
     <ClCompile Include="libamdhsacode\amd_hsa_code.cpp">
       <Filter>libelf</Filter>
     </ClCompile>
-    <ClCompile Include="src\sdma_test.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\signal_test.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\code_obj_test.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp">
       <Filter>libelf</Filter>
     </ClCompile>
-    <ClCompile Include="kmttest\BasePacket.cpp">
-      <Filter>kmttest</Filter>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="kmttest\KFDTestUtil.cpp">
-      <Filter>kmttest</Filter>
+    <ClCompile Include="src\kmt_queue.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="kmttest\BaseQueue.cpp">
-      <Filter>kmttest</Filter>
+    <ClCompile Include="src\kmt_fmm.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="kmttest\SDMAPacket.cpp">
-      <Filter>kmttest</Filter>
+    <ClCompile Include="src\kmt.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="kmttest\SDMAQueue.cpp">
-      <Filter>kmttest</Filter>
+    <ClCompile Include="src\hsa_sdma.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hsa_memory.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hsa.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

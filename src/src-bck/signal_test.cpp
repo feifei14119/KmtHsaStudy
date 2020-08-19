@@ -12,7 +12,7 @@ HsaEvent * CreateSignal()
 	 * ×î¶à 4096 ¸ö event
 	 */
 	if (events_page == NULL)
-		events_page = (uint64_t*)AllocMemoryCPU(KFD_SIGNAL_EVENT_LIMIT * 8);
+		events_page = (uint64_t*)HsaAllocCPU(KFD_SIGNAL_EVENT_LIMIT * 8);
 
 	struct kfd_ioctl_create_event_args args = { 0 };
 
@@ -106,7 +106,7 @@ bool WaitEvent(HsaEvent * evt)
 
 void SignalTest()
 {
-	MemInit();
+	KmtInitMem();
 	printf("***********************\n");
 	printf("* signal test      *\n");
 	printf("***********************\n");
@@ -116,7 +116,7 @@ void SignalTest()
 	WaitEvent(evt);
 
 	printf("\n");
-	MemDeInit();
+	KmtDeInitMem();
 }
 
 // event_type = HSA_EVENTTYPE_SIGNAL

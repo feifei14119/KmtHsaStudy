@@ -27,12 +27,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="kmttest\BasePacket.hpp" />
-    <ClInclude Include="kmttest\BaseQueue.hpp" />
-    <ClInclude Include="kmttest\KFDTestUtil.hpp" />
-    <ClInclude Include="kmttest\SDMAPacket.hpp" />
-    <ClInclude Include="kmttest\SDMAQueue.hpp" />
-    <ClInclude Include="kmttest\sdma_pkt_struct.h" />
     <ClInclude Include="libamdhsacode\amd_elf_image.hpp" />
     <ClInclude Include="libamdhsacode\amd_hsa_code.hpp" />
     <ClInclude Include="libamdhsacode\amd_hsa_code_util.hpp" />
@@ -42,27 +36,22 @@
     <ClInclude Include="libamdhsacode\hsa.h" />
     <ClInclude Include="libamdhsacode\hsa_ext_finalize.h" />
     <ClInclude Include="libelf\libelf.h" />
-    <ClInclude Include="libhsakmt\hsakmt.h" />
     <ClInclude Include="libhsakmt\hsakmttypes.h" />
     <ClInclude Include="libhsakmt\linux\kfd_ioctl.h" />
-    <ClInclude Include="src\kmt_test.h" />
+    <ClInclude Include="src\hsa.h" />
+    <ClInclude Include="src\kmt.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="kmttest\BasePacket.cpp" />
-    <ClCompile Include="kmttest\BaseQueue.cpp" />
-    <ClCompile Include="kmttest\KFDTestUtil.cpp" />
-    <ClCompile Include="kmttest\SDMAPacket.cpp" />
-    <ClCompile Include="kmttest\SDMAQueue.cpp" />
     <ClCompile Include="libamdhsacode\amd_elf_image.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp" />
-    <ClCompile Include="src\code_obj_test.cpp" />
-    <ClCompile Include="src\mem_test.cpp" />
-    <ClCompile Include="src\queue_test.cpp" />
-    <ClCompile Include="src\kmt_test.cpp" />
+    <ClCompile Include="src\hsa.cpp" />
+    <ClCompile Include="src\hsa_memory.cpp" />
+    <ClCompile Include="src\hsa_sdma.cpp" />
+    <ClCompile Include="src\kmt.cpp" />
+    <ClCompile Include="src\kmt_fmm.cpp" />
+    <ClCompile Include="src\kmt_queue.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\sdma_test.cpp" />
-    <ClCompile Include="src\signal_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="libelf\libelf-0.165.so">

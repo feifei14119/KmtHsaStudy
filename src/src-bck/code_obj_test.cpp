@@ -47,7 +47,7 @@ bool load_code_bin_file()
 	CodeBinSize = string::size_type(fs_in.tellg());
 	printf("\topen bin file \"%s\" size = %.3f(KB).\n", CodeBinFile.c_str(), CodeBinSize / 1024.0);
 
-	char * ptr = (char*)AllocMemoryCPU(CodeBinSize);
+	char * ptr = (char*)HsaAllocCPU(CodeBinSize);
 	assert(ptr != NULL);
 	CodeBinBuff = ptr;
 
@@ -196,7 +196,7 @@ void create_code_obj()
 
 void CodeObjTest()
 {
-	MemInit();
+	KmtInitMem();
 
 	printf("**********************************\n");
 	printf("* code object test               *\n");
@@ -207,5 +207,5 @@ void CodeObjTest()
 	create_code_obj();
 
 	printf("\n");
-	MemDeInit();
+	KmtDeInitMem();
 }

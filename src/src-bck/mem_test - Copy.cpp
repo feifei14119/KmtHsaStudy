@@ -512,7 +512,7 @@ void * AllocMemoryAPU(uint64_t memSize)
 	printf("cpu address = 0x%016lX.\n", mem_addr);
 	return mem_addr;
 }
-void * AllocMemoryCPU(uint64_t memSize)
+void * HsaAllocCPU(uint64_t memSize)
 {
 	/*
 	 * 使用rocr分配host系统内存
@@ -756,7 +756,7 @@ void MemTest()
 	/*printf("\n***********************\n");
 	printf("* gpu manage cpu memory test\n");
 	printf("***********************\n");
-	mem_addr = AllocMemoryCPU(len * sizeof(float));
+	mem_addr = HsaAllocCPU(len * sizeof(float));
 	*reinterpret_cast<float*>(mem_addr) = 3.14;
 	tmp_data = *reinterpret_cast<float*>(mem_addr);
 	printf("cpu data = %.3f\n", tmp_data);
