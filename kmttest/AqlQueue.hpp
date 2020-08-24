@@ -21,23 +21,30 @@
  *
  */
 
-#include <gtest/gtest.h>
-#include "hsakmt.h"
+#ifndef __KFD_AQL_QUEUE__H__
+#define __KFD_AQL_QUEUE__H__
 
-#ifndef __KFD_OPEN_CLOSE_KFD_TEST__H__
-#define __KFD_OPEN_CLOSE_KFD_TEST__H__
+#include "BaseQueue.hpp"
 
-//  @class KFDOpenCloseKFDTest
-class KFDOpenCloseKFDTest : public testing::Test {
+class AqlQueue : public BaseQueue {
  public:
-    KFDOpenCloseKFDTest(void) {}
-    ~KFDOpenCloseKFDTest(void) {}
+    AqlQueue();
+    virtual ~AqlQueue();
+
+    // @brief Updates queue write pointer and sets the queue doorbell to the queue write pointer
+    virtual void SubmitPacket();
+
+    // @return Read pointer in dwords
+    virtual unsigned int Rptr();
+    // @return Write pointer in dwords
+    virtual unsigned int Wptr();
+    // @return Expected m_Resources.Queue_read_ptr when all packets are consumed
+    virtual unsigned int RptrWhenConsumed();
 
  protected:
-    // @brief Executed before every test that uses KFDOpenCloseKFDTest class, sets all common settings for the tests.
-    virtual void SetUp();
-    // @brief Executed after every test that uses KFDOpenCloseKFDTest class
-    virtual void TearDown();
+    virtual PACKETTYPE PacketTypeSupported() { return PACKETTYPE_AQL; }
+
+    virtual _HSA_QUEUE_TYPE GetQueueType() { return HSA_QUEUE_COMPUTE_AQL; }
 };
 
-#endif  //  __KFD_OPEN_CLOSE_KFD_TEST__H__
+#endif  // __KFD_AQL_QUEUE__H__

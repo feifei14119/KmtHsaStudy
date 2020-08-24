@@ -21,32 +21,32 @@
  *
  */
 
-#include "IndirectBuffer.hpp"
-#include "GoogleTestExtension.hpp"
-#include "pm4_pkt_struct_common.h"
-#include "PM4Packet.hpp"
+#include "AqlQueue.hpp"
+//#include "GoogleTestExtension.hpp"
 
 
-IndirectBuffer::IndirectBuffer(PACKETTYPE type,  unsigned int sizeInDWords, unsigned int NodeId)
-    :m_NumOfPackets(0), m_MaxSize(sizeInDWords), m_ActualSize(0), m_PacketTypeAllowed(type) {
-    m_IndirectBuf = new HsaMemoryBuffer(sizeInDWords*sizeof(unsigned int), NodeId, true/*zero*/,
-                                        false/*local*/, true/*exec*/);
+AqlQueue::AqlQueue(void) {
 }
 
-IndirectBuffer::~IndirectBuffer(void) {
-    delete m_IndirectBuf;
+
+AqlQueue::~AqlQueue(void) {
 }
 
-void IndirectBuffer::AddPacket(const BasePacket &packet) {
-    ASSERT_EQ(packet.PacketType(), m_PacketTypeAllowed) << "Cannot add a packet since packet type doesn't match queue";
-
-    unsigned int writePtr = m_ActualSize;
-
-    ASSERT_GE(m_MaxSize, packet.SizeInDWords() + writePtr) << "Cannot add a packet, not enough room";
-
-    memcpy(m_IndirectBuf->As<unsigned int*>() + writePtr , packet.GetPacket(),  packet.SizeInBytes());
-    m_ActualSize += packet.SizeInDWords();
-    m_NumOfPackets++;
+unsigned int AqlQueue::Wptr() {
+    return *m_Resources.Queue_write_ptr;
 }
 
+unsigned int AqlQueue::Rptr() {
+    return *m_Resources.Queue_read_ptr;
+}
+
+unsigned int AqlQueue::RptrWhenConsumed() {
+    return Wptr();
+}
+
+void AqlQueue::SubmitPacket() {
+    // m_pending Wptr is in dwords
+    *m_Resources.Queue_write_ptr = m_pendingWptr;
+    *(m_Resources.Queue_DoorBell) = Wptr();
+}
 

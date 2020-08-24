@@ -2,18 +2,9 @@
 #include <iostream>
 #include <vector>
 
-#include "kmt_test.h"
+#include "kmt.h"
+#include "hsa.h"
 
 using namespace std;
 
-void HsaInit()
-{
-	KmtInit();
-	HsaInitSdma();
-}
-void HsaDeInit()
-{
-	HsaDeInitSdma();
-	KmtDeInit();
-}
 

@@ -1,4 +1,4 @@
-#include "kmt.h"
+#include "kmthsa.h"
 
 uint32_t vega20_eop_buff_size = 4096;
 uint32_t vega20_doorbell_size = 8;
@@ -43,26 +43,6 @@ void * allocate_doorbell(uint64_t memSize, uint64_t doorbell_offset)
 
 	return mem_addr;
 }
-void * allocate_cpu(uint64_t memSize) // same as HsaAllocCpu()
-{
-	void * mem_addr = NULL;
-	uint64_t mem_size = ALIGN_UP(memSize, gPageSize);
-
-	mem_addr = KmtAllocHost(mem_size);
-	KmtMapToGpu(mem_addr, mem_size);
-
-	return mem_addr;
-}
-void * allocate_gpu(uint64_t memSize) // same as HsaAllocGpu()
-{
-	void * mem_addr = NULL;
-	uint64_t mem_size = ALIGN_UP(memSize, gPageSize);
-
-	mem_addr = KmtAllocDevice(mem_size);
-	KmtMapToGpu(mem_addr, mem_size);
-
-	return mem_addr;
-}
 
 // ==================================================================
 void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, HsaQueueResource * queuer_rsc)
@@ -70,7 +50,7 @@ void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, H
 	HsaMemFlags mem_flag;
 
 	// malloc kmt_queue_t ----------------------------------------------
-	kmt_queue_t * kmt_queue = (kmt_queue_t*)allocate_cpu(sizeof(kmt_queue_t));
+	kmt_queue_t * kmt_queue = (kmt_queue_t*)HsaAllocCPU(sizeof(kmt_queue_t));
 	memset(kmt_queue, 0, sizeof(kmt_queue_t));
 	if (queue_type != KFD_IOC_QUEUE_TYPE_COMPUTE_AQL)
 	{
@@ -84,7 +64,7 @@ void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, H
 	// malloc eop buffer ----------------------------------------------
 	if (queue_type != KFD_IOC_QUEUE_TYPE_SDMA)
 	{
-		kmt_queue->eop_buffer = allocate_gpu(vega20_eop_buff_size);
+		kmt_queue->eop_buffer = HsaAllocGPU(vega20_eop_buff_size);
 		printf("\n\t-----------------------\n");
 		printf("\tallocate eop buffer.\n");
 		printf("\t\teop buffer = 0x%016lX.\n", kmt_queue->eop_buffer);
@@ -95,7 +75,7 @@ void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, H
 		uint32_t wg_data_size = vega20_cu_num * wg_ctx_data_size_per_cu;
 		kmt_queue->ctl_stack_size = ALIGN_UP(ctl_stack_size + 16, gPageSize); // 16 = sizeof(HsaUserContextSaveAreaHeader)
 		kmt_queue->ctx_save_restore_size = kmt_queue->ctl_stack_size + ALIGN_UP(wg_data_size, gPageSize);
-		kmt_queue->ctx_save_restore = allocate_cpu(kmt_queue->ctx_save_restore_size);
+		kmt_queue->ctx_save_restore = HsaAllocCPU(kmt_queue->ctx_save_restore_size);
 		printf("\n\t-----------------------\n");
 		printf("\tallocate context switch.\n");
 		printf("\t\tctl stack  size = %.3f(KB).\n", kmt_queue->ctl_stack_size / 1024.0);

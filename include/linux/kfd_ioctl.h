@@ -355,8 +355,7 @@ struct kfd_ioctl_create_event_args {
 	__u32 event_trigger_data;	/* from KFD - signal events only */
 	__u32 event_type;		/* to KFD */
 	__u32 auto_reset;		/* to KFD */
-	__u32 node_id;		/* to KFD - only valid for certain
-							event types */
+	__u32 node_id;		/* to KFD - only valid for certain event types */
 	__u32 event_id;		/* from KFD */
 	__u32 event_slot_index;	/* from KFD */
 };

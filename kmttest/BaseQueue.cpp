@@ -27,7 +27,7 @@
 //#include "SDMAQueue.hpp"
 //#include "PM4Queue.hpp"
 //#include "AqlQueue.hpp"
-#include "hsakmt.h"
+#include "../include/hsakmt.h"
 
 BaseQueue::BaseQueue()
     :m_QueueBuf(nullptr),

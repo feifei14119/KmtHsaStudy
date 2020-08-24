@@ -7,8 +7,11 @@
 #include <stdio.h>
 #include <strings.h>
 #include <string.h> 
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include <sstream>
 
 #include <errno.h>
@@ -21,13 +24,13 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
-#include "../libhsakmt/linux/kfd_ioctl.h"
-#include "../libhsakmt/hsakmttypes.h"
+#include "../include/linux/kfd_ioctl.h"
+#include "../include/hsakmttypes.h"
 
 using namespace std;
 
 // ==================================================================
-// inner functions
+// kmt inner functions
 // ==================================================================
 #define KFD_DEVICE						"/dev/kfd"
 #define DRM_RENDER_PATH					"/dev/dri"
@@ -56,6 +59,7 @@ extern uint64_t kmtReadKey(std::string file, std::string key = "");
 
 extern void KmtInitMem();
 extern void KmtDeInitMem();
+extern void * KmtGetVmHandle(void * memAddr);
 
 // ==================================================================
 // HSA API
@@ -73,3 +77,25 @@ extern void KmtUnmapFromGpu(void * memAddr);
 extern void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, HsaQueueResource * queue_src);
 extern void KmtDestroyQueue(uint64_t QueueId);
 
+extern HsaEvent * KmtCreateEvent();
+
+// ==================================================================
+// hsa inner functions
+// ==================================================================
+extern void hsaInitSdma();
+extern void hsaDeInitSdma();
+
+// ==================================================================
+// user API
+// ==================================================================
+extern void KmtHsaInit();
+extern void KmtHsaDeInit();
+
+extern void * HsaAllocCPU(uint64_t memSize);
+extern void * HsaAllocGPU(uint64_t memSize);
+extern void HsaFreeMem(void * memAddr);
+
+extern void HsaSdmaWrite(void * dst, uint32_t data);
+extern void HsaSdmaCopy(void * dst, void * src, uint32_t copy_size);
+
+extern void HsaLoadCode(string fileName);

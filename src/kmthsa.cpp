@@ -1,4 +1,4 @@
-#include "kmt.h"
+#include "kmthsa.h"
 
 int gKfdFd;
 int gNodeNum = 2; // node 0 = cpu; node 1 = gpu
@@ -10,7 +10,8 @@ int kmtIoctl(int fd, unsigned long request, void *arg)
 {
 	int ret;
 
-	do {
+	do 
+	{
 		ret = ioctl(fd, request, arg);
 	} while (ret == -1 && (errno == EINTR || errno == EAGAIN));
 
@@ -67,15 +68,16 @@ void KmtGetInfo()
 	assert(gGpuId != 0);
 }
 
-
-void KmtInit()
+void KmtHsaInit()
 {
 	KmtOpen();
 	KmtGetInfo();
 	KmtInitMem();
+	hsaInitSdma();
 }
-void KmtDeInit()
+void KmtHsaDeInit()
 {
+	hsaDeInitSdma();
 	KmtDeInitMem();
 	KmtClose();
 }

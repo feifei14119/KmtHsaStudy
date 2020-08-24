@@ -1,8 +1,7 @@
-#include "kmt.h"
-#include "hsa.h"
+#include "kmthsa.h"
 
 #define MAX_SDMA_COPY_SIZE (0x3fffe0) // 4M - 32
-#define SDMA_RINGBUFF_SIZE (4 * 1024)
+#define SDMA_RINGBUFF_SIZE (1024 * 1024)
 
 static uint32_t CommandSize = 0;
 static void * DmaQueueRingBuff; // ring buffer address for sdma copy queue
@@ -178,7 +177,7 @@ static void build_copy_cmd(void * dst, void * src, uint32_t copy_size)
 	printf("\n\n");
 }
 
-void HsaInitSdma()
+void hsaInitSdma()
 {
 	printf("\n==============================================\n");
 	printf("init blit sdma: create sdma copy queue.\n");
@@ -195,7 +194,7 @@ void HsaInitSdma()
 	printf("==============================================\n");
 	printf("\n");
 }
-void HsaDeInitSdma()
+void hsaDeInitSdma()
 {
 	KmtDestroyQueue(QueueResource.QueueId);
 }

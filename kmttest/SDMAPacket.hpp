@@ -3,7 +3,7 @@
 #define __KFD_SDMA_PACKET__H__
 
 #include "BasePacket.hpp"
-#include "sdma_pkt_struct.h"
+#include "./include/sdma_pkt_struct.h"
 
 // @class SDMAPacket: Marks a group of all SDMA packets
 class SDMAPacket : public BasePacket 

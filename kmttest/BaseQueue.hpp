@@ -2,7 +2,7 @@
 #define __KFD_BASE_QUEUE__H__
 
 #include <vector>
-#include "../libhsakmt/hsakmt.h"
+#include "../include/hsakmt.h"
 #include "KFDTestUtil.hpp"
 #include "BasePacket.hpp"
 

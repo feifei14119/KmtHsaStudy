@@ -7,8 +7,11 @@
 #include <stdio.h>
 #include <strings.h>
 #include <string.h> 
+#include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include <sstream>
 
 #include <errno.h>
@@ -23,18 +26,4 @@
 
 using namespace std;
 
-// ==================================================================
-// user API
-// ==================================================================
-extern void HsaInit();
-extern void HsaDeInit();
-
-extern void * HsaAllocCPU(uint64_t memSize);
-extern void * HsaAllocGPU(uint64_t memSize);
-extern void HsaFreeMem(void * memAddr);
-
-extern void HsaInitSdma();
-extern void HsaDeInitSdma();
-extern void HsaSdmaWrite(void * dst, uint32_t data);
-extern void HsaSdmaCopy(void * dst, void * src, uint32_t copy_size);
 

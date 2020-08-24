@@ -5,8 +5,8 @@
 #include <vector>
 //#include "OSWrapper.hpp"
 //#include "GoogleTestExtension.hpp"
-#include "../libhsakmt/hsakmttypes.h"
-#include "../libhsakmt/hsakmt.h"
+#include "../include/hsakmttypes.h"
+#include "../include/hsakmt.h"
 
 class BaseQueue;
 #define ARRAY_SIZE(_x) (sizeof(_x)/sizeof(_x[0]))

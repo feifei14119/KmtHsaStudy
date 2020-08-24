@@ -1,23 +1,66 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// The University of Illinois/NCSA
+// Open Source License (NCSA)
+//
+// Copyright (c) 2016, Advanced Micro Devices, Inc. All rights reserved.
+//
+// Developed by:
+//
+//                 AMD Research and AMD HSA Software Development
+//
+//                 Advanced Micro Devices, Inc.
+//
+//                 www.amd.com
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal with the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+//  - Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimers.
+//  - Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimers in
+//    the documentation and/or other materials provided with the distribution.
+//  - Neither the names of Advanced Micro Devices, Inc,
+//    nor the names of its contributors may be used to endorse or promote
+//    products derived from this Software without specific prior written
+//    permission.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS WITH THE SOFTWARE.
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #ifndef DISPATCH_HPP__
 #define DISPATCH_HPP__
 
 #include <sstream>
 #include <cassert>
-#include "hsa.h"
+#include "hsa/hsa.h"
 #include <string>
 
 namespace amd {
 namespace dispatch {
 
-class Buffer 
-{
+class Buffer {
 private:
   size_t size;
   void *local_ptr, *system_ptr;
 
 public:
-  Buffer(size_t size_, void *local_ptr_, void *system_ptr_) : size(size_), local_ptr(local_ptr_), system_ptr(system_ptr_) { }
-  Buffer(size_t size_, void *system_ptr_) : size(size_), local_ptr(system_ptr_), system_ptr(system_ptr_) { }
+  Buffer(size_t size_, void *local_ptr_, void *system_ptr_)
+    : size(size_), local_ptr(local_ptr_), system_ptr(system_ptr_) { }
+  Buffer(size_t size_, void *system_ptr_)
+    : size(size_), local_ptr(system_ptr_), system_ptr(system_ptr_) { }
   void *LocalPtr() const { return local_ptr; }
   void *SystemPtr() { return system_ptr; }
   template <typename T>
@@ -43,8 +86,8 @@ private:
   hsa_region_t gpu_local_region;
   hsa_kernel_dispatch_packet_t* aql;
   uint64_t packet_index;
-  uint32_t group_static_size;
-  uint32_t group_dynamic_size;
+  uint32_t group_static_size = 0;
+  uint32_t group_dynamic_size = 0;
   void *kernarg;
   size_t kernarg_offset;
   hsa_code_object_t code_object;
@@ -93,8 +136,7 @@ public:
   void KernargRaw(const void* ptr, size_t size, size_t align);
 
   template <typename T>
-  void Kernarg(const T* ptr, size_t size = sizeof(T), size_t align = sizeof(T)) 
-  {
+  void Kernarg(const T* ptr, size_t size = sizeof(T), size_t align = sizeof(T)) {
     KernargRaw(ptr, size, align);
   }
 
@@ -104,3 +146,5 @@ public:
 
 }
 }
+
+#endif // DISPATCH_HPP__

@@ -1,8 +1,19 @@
-﻿#include "hsa.h"
+﻿#include "kmthsa.h"
 
+
+//const string CodeBinFile = "/home/feifei/projects/kmt_test/out/isaPackedFp16.bin";
+const string CodeBinFile = "/home/feifei/projects/kmt_test/example/asm-kernel.co";
+
+extern void RunTestEvent();
+extern void RunKmtTest();
 int main(int argc, char *argv[])
 {
-	HsaInit();
+	KmtHsaInit();
+
+	//RunTestEvent();
+	//HsaLoadCode(CodeBinFile);
+	//RunKmtTest();
+	//return 0;
 	
 	uint32_t len = 1024;
 	float * h_A, *h_B, *d_C;
@@ -55,5 +66,7 @@ int main(int argc, char *argv[])
 	HsaFreeMem(d_C);
 
 	printf("\n");
+	KmtHsaDeInit();
 	return 0;
 }
+

@@ -67,7 +67,7 @@ InitDispatch():
 SetupExecutable():
 	SetupCodeObject():
 		LoadCodeObjectFromFile():
-			hsa_code_object_deserialize(); // include memory copy to device (twice)
+			hsa_code_object_deserialize(); 
 	hsa_executable_create();
 	
 	hsa_executable_load_code_object();
