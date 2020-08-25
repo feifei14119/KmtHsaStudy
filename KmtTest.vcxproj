@@ -65,6 +65,7 @@
     <ClCompile Include="libamdhsacode\amd_elf_image.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp" />
+    <ClCompile Include="src\aql.cpp" />
     <ClCompile Include="src\executable.cpp" />
     <ClCompile Include="src\sdma.cpp" />
     <ClCompile Include="src\kmthsa.cpp" />

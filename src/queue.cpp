@@ -47,40 +47,42 @@ void * allocate_doorbell(uint64_t memSize, uint64_t doorbell_offset)
 // ==================================================================
 void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, HsaQueueResource * queuer_rsc)
 {
+	printf("KmtCreateQueue\n");
+
 	HsaMemFlags mem_flag;
 
 	// malloc kmt_queue_t ----------------------------------------------
 	kmt_queue_t * kmt_queue = (kmt_queue_t*)HsaAllocCPU(sizeof(kmt_queue_t));
 	memset(kmt_queue, 0, sizeof(kmt_queue_t));
-	if (queue_type != KFD_IOC_QUEUE_TYPE_COMPUTE_AQL)
+	//if (queue_type != KFD_IOC_QUEUE_TYPE_COMPUTE_AQL)
 	{
 		queuer_rsc->QueueRptrValue = (uintptr_t)&kmt_queue->rptr;
 		queuer_rsc->QueueWptrValue = (uintptr_t)&kmt_queue->wptr;
 	}
-	printf("\n\t-----------------------\n");
-	printf("\tallocate kmt queue:\n");
-	printf("\t\tkmt queue size = %d(Byte).\n", sizeof(kmt_queue_t));
+	//printf("\n\t-----------------------\n");
+	//printf("\tallocate kmt queue:\n");
+	//printf("\t\tkmt queue size = %d(Byte).\n", sizeof(kmt_queue_t));
 
 	// malloc eop buffer ----------------------------------------------
 	if (queue_type != KFD_IOC_QUEUE_TYPE_SDMA)
 	{
 		kmt_queue->eop_buffer = HsaAllocGPU(vega20_eop_buff_size);
-		printf("\n\t-----------------------\n");
-		printf("\tallocate eop buffer.\n");
-		printf("\t\teop buffer = 0x%016lX.\n", kmt_queue->eop_buffer);
-		printf("\t\teop size = %d.\n", vega20_eop_buff_size);
-
+		//printf("\n\t-----------------------\n");
+		//printf("\tallocate eop buffer.\n");
+		//printf("\t\teop buffer = 0x%016lX.\n", kmt_queue->eop_buffer);
+		//printf("\t\teop size = %d.\n", vega20_eop_buff_size);
+	
 		// malloc ctx switch ----------------------------------------------
 		uint32_t ctl_stack_size = vega20_cu_num * wave_per_cu * 8 + 8;
 		uint32_t wg_data_size = vega20_cu_num * wg_ctx_data_size_per_cu;
 		kmt_queue->ctl_stack_size = ALIGN_UP(ctl_stack_size + 16, gPageSize); // 16 = sizeof(HsaUserContextSaveAreaHeader)
 		kmt_queue->ctx_save_restore_size = kmt_queue->ctl_stack_size + ALIGN_UP(wg_data_size, gPageSize);
 		kmt_queue->ctx_save_restore = HsaAllocCPU(kmt_queue->ctx_save_restore_size);
-		printf("\n\t-----------------------\n");
-		printf("\tallocate context switch.\n");
-		printf("\t\tctl stack  size = %.3f(KB).\n", kmt_queue->ctl_stack_size / 1024.0);
-		printf("\t\tctx switch size = %.3f(MB).\n", kmt_queue->ctx_save_restore_size / 1024.0 / 1024.0);
-		printf("\t\tctx switch addr = %016lX.\n", (uint64_t)kmt_queue->ctx_save_restore);
+		//printf("\n\t-----------------------\n");
+		//printf("\tallocate context switch.\n");
+		//printf("\t\tctl stack  size = %.3f(KB).\n", kmt_queue->ctl_stack_size / 1024.0);
+		//printf("\t\tctx switch size = %.3f(MB).\n", kmt_queue->ctx_save_restore_size / 1024.0 / 1024.0);
+		//printf("\t\tctx switch addr = %016lX.\n", (uint64_t)kmt_queue->ctx_save_restore);
 	}
 
 	// ioctrl create kmt_queue_t ----------------------------------------------
@@ -100,24 +102,24 @@ void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, H
 	args.write_pointer_address = queuer_rsc->QueueWptrValue;
 	args.ring_base_address = (uintptr_t)ring_buff;
 
-	printf("\n\t-----------------------\n");
-	printf("\tkmtIoctl create queue.\n");
-	printf("\t\targs.gpu_id = %d \n", args.gpu_id);
-	printf("\t\targs.queue_type = %d \n", args.queue_type);
-	printf("\t\targs.queue_percentage = %d \n", args.queue_percentage);
-	printf("\t\targs.queue_priority = %d \n", args.queue_priority);
-	printf("\t\targs.read_pointer_address  = 0x%016lX \n", args.read_pointer_address);
-	printf("\t\targs.write_pointer_address = 0x%016lX \n", args.write_pointer_address);
-	printf("\t\targs.ring_base_address     = 0x%016lX \n", args.ring_base_address);
-	printf("\t\targs.ring_size = %d \n", args.ring_size);
+	//printf("\n\t-----------------------\n");
+	//printf("\tkmtIoctl create queue.\n");
+	//printf("\t\targs.gpu_id = %d \n", args.gpu_id);
+	//printf("\t\targs.queue_type = %d \n", args.queue_type);
+	//printf("\t\targs.queue_percentage = %d \n", args.queue_percentage);
+	//printf("\t\targs.queue_priority = %d \n", args.queue_priority);
+	//printf("\t\targs.read_pointer_address  = 0x%016lX \n", args.read_pointer_address);
+	//printf("\t\targs.write_pointer_address = 0x%016lX \n", args.write_pointer_address);
+	//printf("\t\targs.ring_base_address     = 0x%016lX \n", args.ring_base_address);
+	//printf("\t\targs.ring_size = %d \n", args.ring_size);
 	int err = kmtIoctl(gKfdFd, AMDKFD_IOC_CREATE_QUEUE, &args);
 	assert(err == 0);
 	kmt_queue->queue_id = args.queue_id;
-	printf("\t\t-----------------------\n");
-	printf("\t\tqueue id = %d.\n", args.queue_id);
-	printf("\t\tread  pointer   address = 0x%016lX.\n", queuer_rsc->QueueRptrValue);
-	printf("\t\twrite pointer   address = 0x%016lX.\n", queuer_rsc->QueueWptrValue);
-	printf("\t\tdoorbell offset address = 0x%016lX.\n", args.doorbell_offset);
+	//printf("\t\t-----------------------\n");
+	//printf("\t\tqueue id = %d.\n", args.queue_id);
+	//printf("\t\tread  pointer   address = 0x%016lX.\n", queuer_rsc->QueueRptrValue);
+	//printf("\t\twrite pointer   address = 0x%016lX.\n", queuer_rsc->QueueWptrValue);
+	//printf("\t\tdoorbell offset address = 0x%016lX.\n", args.doorbell_offset);
 
 	// map doorbell ----------------------------------------------
 	process_doorbell_t doorbell;
@@ -128,15 +130,15 @@ void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, H
 	uint64_t doorbell_mmap_offset = args.doorbell_offset & ~(uint64_t)(doorbell.size - 1);  // above doorbell size
 	uint32_t doorbell_offset = args.doorbell_offset & (doorbell.size - 1);					// inner doorbell size
 
-	printf("\n\t-----------------------\n");
-	printf("\tAllocMemoryDoorbell\n");
-	printf("\t\tdoorbell mmap_offset = 0x%016lX.\n", doorbell_mmap_offset);
-	printf("\t\tdoorbell.size = %d.\n", doorbell.size);
-	printf("\t\tdoorbell.use_gpuvm = %d.\n", doorbell.use_gpuvm);
+	//printf("\n\t-----------------------\n");
+	//printf("\tAllocMemoryDoorbell\n");
+	//printf("\t\tdoorbell mmap_offset = 0x%016lX.\n", doorbell_mmap_offset);
+	//printf("\t\tdoorbell.size = %d.\n", doorbell.size);
+	//printf("\t\tdoorbell.use_gpuvm = %d.\n", doorbell.use_gpuvm);
 	void * doorbell_addr = allocate_doorbell(doorbell.size, doorbell_mmap_offset);
 	doorbell.mapping = doorbell_addr;
-	printf("\t\t-----------------------\n");
-	printf("\t\tdoorbell.mapping = 0x%016lX.\n", doorbell.mapping);
+	//printf("\t\t-----------------------\n");
+	//printf("\t\tdoorbell.mapping = 0x%016lX.\n", doorbell.mapping);
 
 	queuer_rsc->QueueId = (uint64_t)kmt_queue;
 	queuer_rsc->Queue_DoorBell = (uint32_t *)((char*)doorbell_addr + doorbell_offset);
@@ -145,6 +147,8 @@ void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, H
 }
 void KmtDestroyQueue(uint64_t QueueId)
 {
+	printf("KmtDestroyQueue\n");
+
 	kmt_queue_t * q = (kmt_queue_t*)(QueueId);
 	struct kfd_ioctl_destroy_queue_args args = { 0 };
 	

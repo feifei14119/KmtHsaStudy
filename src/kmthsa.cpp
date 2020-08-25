@@ -46,38 +46,52 @@ uint64_t kmtReadKey(std::string file, std::string key)
 	fclose(fd);
 }
 
-void KmtOpen()
+void kmtOpen()
 {
+	printf("kmtOpen\n");
+
 	gKfdFd = open(KFD_DEVICE, O_RDWR | O_CLOEXEC);
-	printf("Open kfd device: \"%s\". fd = %d.\n", KFD_DEVICE, gKfdFd);
+	printf("open kfd device: \"%s\". fd = %d.\n", KFD_DEVICE, gKfdFd);
 	assert(gKfdFd != 0);
 }
-void KmtClose()
+void kmtClose()
 {
+	printf("kmtClose\n");
 	close(gKfdFd);
 }
-void KmtGetInfo()
+void kmtGetInfo()
 {
+	printf("kmtGetInfo\n");
+
+	printf("get amdkfd version\n");
 	struct kfd_ioctl_get_version_args args = { 0 };
 	kmtIoctl(gKfdFd, AMDKFD_IOC_GET_VERSION, &args);
-	printf("AMDKFD version = %d.%d.\n", args.major_version, args.minor_version);
+	printf("\tamdkfd version = %d.%d.\n", args.major_version, args.minor_version);
 
-	printf("Read gpu_id from \"%s\":\n", (KFD_NODES_PATH + string("[node_idx]/gpu_id")).data());
+	printf("read gpu_id from \"%s\":\n", (KFD_NODES_PATH + string("[node_idx]/gpu_id")).data());
 	gGpuId = kmtReadKey(KFD_NODE(gNodeIdx) + string("/gpu_id"));
-	printf("    node %d gpu_id = %d = 0x%04X.\n", gNodeIdx, gGpuId, gGpuId);
+	printf("\tnode %d gpu_id = %d = 0x%04X.\n", gNodeIdx, gGpuId, gGpuId);
 	assert(gGpuId != 0);
 }
 
 void KmtHsaInit()
 {
-	KmtOpen();
-	KmtGetInfo();
-	KmtInitMem();
+	printf("==============================================\n");
+	printf("KmtHsaInit\n");
+	kmtOpen();
+	kmtGetInfo();
+	kmtInitMem();
 	hsaInitSdma();
+	printf("==============================================\n");
+	printf("\n");
 }
 void KmtHsaDeInit()
 {
+	printf("==============================================\n");
+	printf("KmtHsaDeInit\n");
 	hsaDeInitSdma();
-	KmtDeInitMem();
-	KmtClose();
+	kmtDeInitMem();
+	kmtClose();
+	printf("==============================================\n");
+	printf("\n");
 }

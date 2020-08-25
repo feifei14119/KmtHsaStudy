@@ -5,7 +5,7 @@
 
 static uint32_t CommandSize = 0;
 static void * DmaQueueRingBuff; // ring buffer address for sdma copy queue
-static HsaQueueResource QueueResource;
+static HsaQueueResource SdmaQueueResource;
 
 typedef struct SDMA_PKT_WRITE_UNTILED_TAG
 {
@@ -276,16 +276,16 @@ static void build_write_cmd(void * addr, uint32_t data)
 	memcpy(pbuff, &write_untiled_cmd, sizeof(SDMA_PKT_WRITE_UNTILED));
 	CommandSize += sizeof(SDMA_PKT_WRITE_UNTILED);
 
-	printf("\n\t-----------------------\n");
-	printf("\tbuild write untiled command.\n");
-	printf("\tsize = %d.\n", sizeof(SDMA_PKT_WRITE_UNTILED));
-	for (uint32_t i = 0; i < sizeof(SDMA_PKT_WRITE_UNTILED); i++)
-	{
-		printf("0x%02X, ", *(((unsigned char*)(&write_untiled_cmd)) + i));
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("\n\n");
+	//printf("\n\t-----------------------\n");
+	//printf("\tbuild write untiled command.\n");
+	//printf("\tsize = %d.\n", sizeof(SDMA_PKT_WRITE_UNTILED));
+	//for (uint32_t i = 0; i < sizeof(SDMA_PKT_WRITE_UNTILED); i++)
+	//{
+	//	printf("0x%02X, ", *(((unsigned char*)(&write_untiled_cmd)) + i));
+	//	if ((i + 1) % 8 == 0)
+	//		printf("\n");
+	//}
+	//printf("\n\n");
 }
 static void build_copy_cmd(void * dst, void * src, uint32_t copy_size)
 {
@@ -306,16 +306,16 @@ static void build_copy_cmd(void * dst, void * src, uint32_t copy_size)
 	memcpy(pbuff, &dma_copy_cmd, sizeof(SDMA_PKT_COPY_LINEAR));
 	CommandSize += sizeof(SDMA_PKT_COPY_LINEAR);
 
-	printf("\n\t-----------------------\n");
-	printf("\tbuild copy command.\n");
-	printf("\tsize = %d(DWORD).\n", sizeof(SDMA_PKT_COPY_LINEAR) / 4);
-	for (uint32_t i = 0; i < sizeof(SDMA_PKT_COPY_LINEAR) / 4; i++)
-	{
-		printf("0x%08X, ", *(((unsigned int*)(&dma_copy_cmd)) + i));
-		if ((i + 1) % 4 == 0)
-			printf("\n");
-	}
-	printf("\n\n");
+	//printf("\n\t-----------------------\n");
+	//printf("\tbuild copy command.\n");
+	//printf("\tsize = %d(DWORD).\n", sizeof(SDMA_PKT_COPY_LINEAR) / 4);
+	//for (uint32_t i = 0; i < sizeof(SDMA_PKT_COPY_LINEAR) / 4; i++)
+	//{
+	//	printf("0x%08X, ", *(((unsigned int*)(&dma_copy_cmd)) + i));
+	//	if ((i + 1) % 4 == 0)
+	//		printf("\n");
+	//}
+	//printf("\n\n");
 }
 static void build_flush_cmd()
 {
@@ -325,16 +325,16 @@ static void build_flush_cmd()
 	memcpy(pbuff, &hdp_flush_cmd, sizeof(SDMA_PKT_HDP_FLUSH));
 	CommandSize += sizeof(SDMA_PKT_HDP_FLUSH);
 
-	printf("\n\t-----------------------\n");
-	printf("\tbuild flush command.\n");
-	printf("\tsize = %d.\n", sizeof(SDMA_PKT_HDP_FLUSH));
-	for (uint32_t i = 0; i < sizeof(SDMA_PKT_HDP_FLUSH); i++)
-	{
-		printf("0x%02X, ", *(((unsigned char*)(&hdp_flush_cmd)) + i));
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("\n");
+	//printf("\n\t-----------------------\n");
+	//printf("\tbuild flush command.\n");
+	//printf("\tsize = %d.\n", sizeof(SDMA_PKT_HDP_FLUSH));
+	//for (uint32_t i = 0; i < sizeof(SDMA_PKT_HDP_FLUSH); i++)
+	//{
+	//	printf("0x%02X, ", *(((unsigned char*)(&hdp_flush_cmd)) + i));
+	//	if ((i + 1) % 8 == 0)
+	//		printf("\n");
+	//}
+	//printf("\n");
 }
 /*static void build_poll_cmd()
 {
@@ -403,83 +403,79 @@ static void build_trap_cmd()
 	memcpy(pbuff, &trap_cmd, sizeof(SDMA_PKT_TRAP));
 	CommandSize += sizeof(SDMA_PKT_TRAP);
 
-	printf("\n\t-----------------------\n");
-	printf("\tbuild trap command.\n");
-	printf("\tsize = %d.\n", sizeof(SDMA_PKT_TRAP));
-	for (uint32_t i = 0; i < sizeof(SDMA_PKT_TRAP); i++)
-	{
-		printf("0x%02X, ", *(((unsigned char*)(&trap_cmd)) + i));
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("\n");
+	//printf("\n\t-----------------------\n");
+	//printf("\tbuild trap command.\n");
+	//printf("\tsize = %d.\n", sizeof(SDMA_PKT_TRAP));
+	//for (uint32_t i = 0; i < sizeof(SDMA_PKT_TRAP); i++)
+	//{
+	//	printf("0x%02X, ", *(((unsigned char*)(&trap_cmd)) + i));
+	//	if ((i + 1) % 8 == 0)
+	//		printf("\n");
+	//}
+	//printf("\n");
 }
 
 void hsaInitSdma()
 {
-	printf("\n==============================================\n");
-	printf("init blit sdma: create sdma copy queue.\n");
+	printf("hsaInitSdma\n");
 
 	CommandSize = 0;
 	DmaQueueRingBuff = HsaAllocCPU(SDMA_RINGBUFF_SIZE);
-	KmtCreateQueue(KFD_IOC_QUEUE_TYPE_SDMA, DmaQueueRingBuff, SDMA_RINGBUFF_SIZE, &QueueResource);
+	KmtCreateQueue(KFD_IOC_QUEUE_TYPE_SDMA, DmaQueueRingBuff, SDMA_RINGBUFF_SIZE, &SdmaQueueResource);
 
-	printf("\tqueue id      = 0x%016lX.\n", QueueResource.QueueId);
-	printf("\twrite pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueWptrValue, *QueueResource.Queue_write_ptr);
-	printf("\tread  pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueRptrValue, *QueueResource.Queue_read_ptr);
-	printf("\tringbuff addr = 0x%016lX.\n", DmaQueueRingBuff);
-	printf("\tdoorbell addr = 0x%016lX.\n", QueueResource.QueueDoorBell);
-	printf("==============================================\n");
+	//printf("\tqueue id      = 0x%016lX.\n", SdmaQueueResource.QueueId);
+	//printf("\twrite pointer = 0x%016lX, Value = %d.\n", SdmaQueueResource.QueueWptrValue, *SdmaQueueResource.Queue_write_ptr);
+	//printf("\tread  pointer = 0x%016lX, Value = %d.\n", SdmaQueueResource.QueueRptrValue, *SdmaQueueResource.Queue_read_ptr);
+	//printf("\tringbuff addr = 0x%016lX.\n", DmaQueueRingBuff);
+	//printf("\tdoorbell addr = 0x%016lX.\n", SdmaQueueResource.QueueDoorBell);
 	printf("\n");
 }
 void hsaDeInitSdma()
 {
-	KmtDestroyQueue(QueueResource.QueueId);
+	printf("hsaDeInitSdma\n");
+	KmtDestroyQueue(SdmaQueueResource.QueueId);
 }
 
 void HsaSdmaWrite(void * dst, uint32_t data)
 {
-	printf("=============================\n");
-	printf("sdma write:\n");
+	printf("HsaSdmaWrite\n");
 
 	build_write_cmd(dst, data);
 
 	uint64_t cur_index, new_index;
-	cur_index = *QueueResource.Queue_read_ptr;
+	cur_index = *SdmaQueueResource.Queue_read_ptr;
 	new_index = cur_index + CommandSize;
 
-	*(QueueResource.Queue_write_ptr_aql) = new_index;
-	*(QueueResource.Queue_DoorBell_aql) = new_index;
-	while (*QueueResource.Queue_write_ptr != *QueueResource.Queue_read_ptr)
+	*(SdmaQueueResource.Queue_write_ptr_aql) = new_index;
+	*(SdmaQueueResource.Queue_DoorBell_aql) = new_index;
+	while (*SdmaQueueResource.Queue_write_ptr != *SdmaQueueResource.Queue_read_ptr)
 	{
 		usleep(1000);
 	}
 
-	printf("\tread  pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueRptrValue, *(volatile unsigned int *)QueueResource.Queue_read_ptr);
-	printf("\twrite pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueWptrValue, *(volatile unsigned int *)QueueResource.Queue_write_ptr);
-	printf("=============================\n");
+	//printf("\tread  pointer = 0x%016lX, Value = %d.\n", SdmaQueueResource.QueueRptrValue, *(volatile unsigned int *)SdmaQueueResource.Queue_read_ptr);
+	//printf("\twrite pointer = 0x%016lX, Value = %d.\n", SdmaQueueResource.QueueWptrValue, *(volatile unsigned int *)SdmaQueueResource.Queue_write_ptr);
 	printf("\n");
 }
 void HsaSdmaCopy(void * dst, void * src, uint32_t copy_size)
 {
-	printf("=============================\n");
-	printf("sdma copy:\n");
+	printf("HsaSdmaCopy\n");
+
 	build_copy_cmd(dst, src, copy_size);
 
 	uint64_t cur_index, new_index;
-	cur_index = *QueueResource.Queue_read_ptr;
-	new_index = cur_index + CommandSize;
+	cur_index = *SdmaQueueResource.Queue_read_ptr;
+	new_index = CommandSize;
 
-	*(QueueResource.Queue_write_ptr_aql) = new_index;
-	*(QueueResource.Queue_DoorBell_aql) = new_index;
-	while (*QueueResource.Queue_write_ptr != *QueueResource.Queue_read_ptr)
+	*(SdmaQueueResource.Queue_write_ptr_aql) = new_index;
+	*(SdmaQueueResource.Queue_DoorBell_aql) = new_index;
+	while (*SdmaQueueResource.Queue_write_ptr != *SdmaQueueResource.Queue_read_ptr)
 	{
 		usleep(1000);
 	}
 
-	printf("\tread  pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueRptrValue, *(volatile unsigned int *)QueueResource.Queue_read_ptr);
-	printf("\twrite pointer = 0x%016lX, Value = %d.\n", QueueResource.QueueWptrValue, *(volatile unsigned int *)QueueResource.Queue_write_ptr);
-	printf("=============================\n");
+	//printf("\tread  pointer = 0x%016lX, Value = %d.\n", SdmaQueueResource.QueueRptrValue, *(volatile unsigned int *)SdmaQueueResource.Queue_read_ptr);
+	//printf("\twrite pointer = 0x%016lX, Value = %d.\n", SdmaQueueResource.QueueWptrValue, *(volatile unsigned int *)SdmaQueueResource.Queue_write_ptr);
 	printf("\n");
 }
 

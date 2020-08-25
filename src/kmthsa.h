@@ -54,18 +54,16 @@ extern int gNodeIdx;
 extern int gGpuId;
 extern int gPageSize;
 
-extern int kmtIoctl(int fd, unsigned long request, void *arg);
-extern uint64_t kmtReadKey(std::string file, std::string key = "");
-
 // ==================================================================
 // KMT API
 // ==================================================================
-extern void KmtInit(); 
-extern void KmtDeInit();
+extern int kmtIoctl(int fd, unsigned long request, void *arg);
+extern uint64_t kmtReadKey(std::string file, std::string key = "");
 
-extern void KmtInitMem();
-extern void KmtDeInitMem();
+extern void kmtInitMem();
+extern void kmtDeInitMem();
 
+// ------------------------------------------------------------------
 extern void * KmtAllocDoorbell(uint64_t memSize, uint64_t doorbell_offset);
 extern void * KmtAllocDevice(uint64_t memSize);
 extern void * KmtAllocHost(uint64_t memSize, bool isPage = true);
@@ -88,6 +86,7 @@ extern void KmtWaitOnEvent(HsaEvent *Event);
 extern void hsaInitSdma();
 extern void hsaDeInitSdma();
 
+// ------------------------------------------------------------------
 extern void KmtHsaInit();
 extern void KmtHsaDeInit();
 
@@ -98,4 +97,19 @@ extern void HsaFreeMem(void * memAddr);
 extern void HsaSdmaWrite(void * dst, uint32_t data);
 extern void HsaSdmaCopy(void * dst, void * src, uint32_t copy_size);
 
-extern void HsaLoadCode(string fileName);
+extern void * HsaLoadKernel(string fileName);
+
+extern void HsaAqlCreate();
+extern void HsaAqlSetPkt(void * kernelHandle, uint32_t grpSz = 1, uint32_t grdSz = 1);
+extern void HsaAqlSetKernelArg(void ** arg, size_t argSize);
+extern void HsaAqlRingDoorbell();
+
+// ==================================================================
+// TEMP TEST
+// ==================================================================
+extern void RunKmtTest();
+
+extern void RunSdmaTest();
+extern void RunEventTest();
+extern void RunAqlTest();
+
