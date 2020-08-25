@@ -1,8 +1,5 @@
-
 #include "kmthsa.h"
-
 #include "amd_hsa_code.hpp"
-
 
 enum hsa_ext_symbol_info_t 
 {

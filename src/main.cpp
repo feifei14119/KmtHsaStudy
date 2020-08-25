@@ -1,18 +1,20 @@
 ﻿#include "kmthsa.h"
 
-
 //const string CodeBinFile = "/home/feifei/projects/kmt_test/out/isaPackedFp16.bin";
 const string CodeBinFile = "/home/feifei/projects/kmt_test/example/asm-kernel.co";
 
-extern void RunTestEvent();
+extern void RunSdmaTest();
+extern void RunEventTest();
 extern void RunKmtTest();
+
 int main(int argc, char *argv[])
 {
 	KmtHsaInit();
 
-	//RunTestEvent();
-	//HsaLoadCode(CodeBinFile);
 	//RunKmtTest();
+	//RunEventTest();
+	//RunSdmaTest();
+	//HsaLoadCode(CodeBinFile);
 	//return 0;
 	
 	uint32_t len = 1024;

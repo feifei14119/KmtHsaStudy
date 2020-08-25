@@ -1,18 +1,16 @@
 #include "kmthsa.h"
 
-static void * events_page = NULL;
+static void * gEventsPage = NULL;
 
 // ==================================================================
 
-
-// ==================================================================
-
-
-// ==================================================================
 HsaEvent * KmtCreateEvent()
 {
-	HsaEvent *e = (HsaEvent*)malloc(sizeof(HsaEvent));
-	memset(e, 0, sizeof(*e));
+	printf("KmtCreateEvent\n");
+	
+	printf("malloc HsaEvent\n");
+	HsaEvent *evt = (HsaEvent*)malloc(sizeof(HsaEvent));
+	memset(evt, 0, sizeof(*evt));
 
 	struct kfd_ioctl_create_event_args args = { 0 };
 
@@ -20,68 +18,104 @@ HsaEvent * KmtCreateEvent()
 	args.event_type = HSA_EVENTTYPE_SIGNAL;
 	args.auto_reset = true;
 
-	if (!events_page)
+	if (!gEventsPage)
 	{
-		events_page = HsaAllocCPU(KFD_SIGNAL_EVENT_LIMIT * 8);
-		args.event_page_offset = (uint64_t)KmtGetVmHandle(events_page);
-		printf("events_page = 0x%016lX\n", events_page);
+		printf("malloc EventsPage\n");
+		gEventsPage = KmtAllocHost(KFD_SIGNAL_EVENT_LIMIT * 8, false);
+		KmtMapToGpu(gEventsPage, KFD_SIGNAL_EVENT_LIMIT * 8);
+		args.event_page_offset = (uint64_t)KmtGetVmHandle(gEventsPage);
 	}
 
-	printf("args.node_id = %d\n", args.node_id);
-	printf("args.event_type = %d\n", args.event_type);
-	printf("args.auto_reset = %d\n", args.auto_reset);
-	printf("args.event_page_offset = 0x%016lX\n", args.event_page_offset);
+	//printf("args.node_id = %d\n", args.node_id);
+	//printf("args.event_type = %d\n", args.event_type);
+	//printf("args.auto_reset = %d\n", args.auto_reset);
+	//printf("args.event_page_offset = 0x%016lX\n", args.event_page_offset);
+	printf("ioctrl create event\n");
 	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_CREATE_EVENT, &args);
-	printf("return = %d\n", rtn);
 	assert(rtn == 0);
+	//printf("-----------------------------------\n");
+	//printf("args.event_id = %d\n", args.event_id);
+	//printf("args.event_slot_index = %d\n", args.event_slot_index);
+	//printf("args.event_trigger_data = %d\n", args.event_trigger_data);
+	//printf("args.event_page_offset = 0x%016lX\n", args.event_page_offset);
 
-	printf("-----------------------------------\n");
-	printf("args.event_id = %d\n", args.event_id);
-	printf("args.event_slot_index = %d\n", args.event_slot_index);
-	printf("args.event_trigger_data = %d\n", args.event_trigger_data);
-	printf("args.event_page_offset = 0x%016lX\n", args.event_page_offset);
-	return nullptr;
+	printf("fill event object\n");
+	evt->EventId = args.event_id;
+	evt->EventData.EventType = (HSA_EVENTTYPE)args.event_type;
+	evt->EventData.HWData1 = args.event_id;
+	evt->EventData.HWData2 = (uint64_t)&((HsaEvent*)gEventsPage)[args.event_slot_index];
+	evt->EventData.HWData3 = args.event_trigger_data;
+	evt->EventData.EventData.SyncVar.SyncVar.UserData = nullptr;
+	evt->EventData.EventData.SyncVar.SyncVarSize = 0;
 
-	/*e->EventId = args.event_id;
+	printf("event.event_id = %d\n", evt->EventId);
+	printf("EventData.EventType = %d\n", evt->EventData.EventType);
+	printf("EventData.HWData1 = 0x%016lX\n", evt->EventData.HWData1);
+	printf("EventData.HWData2 = 0x%016lX\n", evt->EventData.HWData2);
+	printf("EventData.HWData3 = 0x%016lX\n", evt->EventData.HWData3);
+	printf("SyncVar.UserData = 0x%016lX\n", evt->EventData.EventData.SyncVar.SyncVar.UserData);
+	printf("SyncVar.SyncVarSize = %ld\n", evt->EventData.EventData.SyncVar.SyncVarSize);
 
-	if (!events_page && args.event_page_offset > 0)
-	{
-		events_page = mmap(NULL, KFD_SIGNAL_EVENT_LIMIT * 8, PROT_WRITE | PROT_READ, MAP_SHARED, gKfdFd, args.event_page_offset);
-		assert(events_page != MAP_FAILED);
-	}
-	
-	if (args.event_page_offset > 0 && args.event_slot_index < KFD_SIGNAL_EVENT_LIMIT)
-		e->EventData.HWData2 = (uint64_t)&events_page[args.event_slot_index];
-
-	e->EventData.EventType = args.event_type;
-	e->EventData.HWData1 = args.event_id;
-	e->EventData.HWData3 = args.event_trigger_data;
-	e->EventData.EventData.SyncVar.SyncVar.UserData = EventDesc->SyncVar.SyncVar.UserData;
-	e->EventData.EventData.SyncVar.SyncVarSize = EventDesc->SyncVar.SyncVarSize;*/
-
-	return e;
+	return evt;
 }
-/*void KmtDestroyEvent(HsaEvent *Event)
+void KmtDestroyEvent(HsaEvent *Event)
 {
-	CHECK_KFD_OPEN();
-
-	if (!Event)
-		return HSAKMT_STATUS_INVALID_HANDLE;
-
 	struct kfd_ioctl_destroy_event_args args = { 0 };
-
 	args.event_id = Event->EventId;
 
-	if (kmtIoctl(kfd_fd, AMDKFD_IOC_DESTROY_EVENT, &args) != 0)
-		return HSAKMT_STATUS_ERROR;
+	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_DESTROY_EVENT, &args);
+	assert(rtn == 0);
 
 	free(Event);
-	return HSAKMT_STATUS_SUCCESS;
-}*/
-
-void RunTestEvent()
+}
+void KmtSetEvent(HsaEvent *Event)
 {
-	HsaEvent * m_pHsaEvent;
+	struct kfd_ioctl_set_event_args args = { 0 };
+	args.event_id = Event->EventId;
 
-	KmtCreateEvent();
+	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_SET_EVENT, &args);
+	assert(rtn == 0);
+}
+void KmtWaitOnEvent(HsaEvent *Event)
+{
+	printf("KmtWaitOnEvent\n");
+
+	printf("malloc kfd_event_data\n");
+	struct kfd_event_data *event_data = (kfd_event_data *)calloc(1, sizeof(struct kfd_event_data));
+	event_data->event_id = Event->EventId;
+	event_data->kfd_event_data_ext = (uint64_t)(uintptr_t)NULL;
+
+	struct kfd_ioctl_wait_events_args args = { 0 };
+	args.wait_for_all = true;
+	args.timeout = 1000;
+	args.num_events = 1;
+	args.events_ptr = (uint64_t)(uintptr_t)event_data;
+
+	printf("ioctrl wait event\n");
+	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_WAIT_EVENTS, &args);
+	assert(rtn != -1);
+
+	if (args.wait_result == KFD_IOC_WAIT_RESULT_TIMEOUT)
+	{
+		printf("HSAKMT_STATUS_WAIT_TIMEOUT\n");
+	}
+	else
+	{
+		printf("HSAKMT_STATUS_SUCCESS\n");
+	}
+}
+
+// ==================================================================
+
+void RunEventTest()
+{
+	HsaEvent * evt;
+
+	evt = KmtCreateEvent();
+	KmtWaitOnEvent(evt);
+
+	KmtSetEvent(evt);
+	KmtWaitOnEvent(evt);
+	
+	KmtDestroyEvent(evt);
 }

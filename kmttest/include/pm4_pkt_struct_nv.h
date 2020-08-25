@@ -85,14 +85,16 @@ typedef struct _PM4_ACQUIRE_MEM_NV
 
 }  PM4ACQUIRE_MEM_NV, *PPM4ACQUIRE_MEM_NV;
 
-typedef struct PM4_MEC_RELEASE_MEM_NV {
+typedef struct PM4_MEC_RELEASE_MEM_NV 
+{
     union {
         PM4_TYPE_3_HEADER   header;
         unsigned int        ordinal1;
     };
 
     union {
-        struct {
+        struct 
+		{
             unsigned int event_type:6;
             unsigned int reserved1:2;
             AI_MEC_RELEASE_MEM_event_index_enum event_index:4;
@@ -107,7 +109,8 @@ typedef struct PM4_MEC_RELEASE_MEM_NV {
     };
 
     union {
-        struct {
+        struct 
+		{
             unsigned int reserved7:16;
             AI_MEC_RELEASE_MEM_dst_sel_enum dst_sel:2;
             unsigned int reserved8:6;
@@ -119,11 +122,13 @@ typedef struct PM4_MEC_RELEASE_MEM_NV {
     };
 
     union {
-        struct {
+        struct 
+		{
             unsigned int reserved10:2;
             unsigned int address_lo_32b:30;
         } bitfields4a;
-        struct {
+        struct 
+		{
             unsigned int reserved11:3;
             unsigned int address_lo_64b:29;
         } bitfields4b;
@@ -145,7 +150,8 @@ typedef struct PM4_MEC_RELEASE_MEM_NV {
 
         unsigned int cmp_data_lo;
 
-        struct {
+        struct 
+		{
             unsigned int dw_offset:16;
             unsigned int num_dwords:16;
         } bitfields6c;

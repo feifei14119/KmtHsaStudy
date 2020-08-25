@@ -57,37 +57,37 @@ extern int gPageSize;
 extern int kmtIoctl(int fd, unsigned long request, void *arg);
 extern uint64_t kmtReadKey(std::string file, std::string key = "");
 
-extern void KmtInitMem();
-extern void KmtDeInitMem();
-extern void * KmtGetVmHandle(void * memAddr);
-
 // ==================================================================
-// HSA API
+// KMT API
 // ==================================================================
 extern void KmtInit(); 
 extern void KmtDeInit();
 
+extern void KmtInitMem();
+extern void KmtDeInitMem();
+
 extern void * KmtAllocDoorbell(uint64_t memSize, uint64_t doorbell_offset);
 extern void * KmtAllocDevice(uint64_t memSize);
-extern void * KmtAllocHost(uint64_t memSize);
+extern void * KmtAllocHost(uint64_t memSize, bool isPage = true);
 extern void KmtReleaseMemory(void * memAddr);
 extern void KmtMapToGpu(void * memAddr, uint64_t memSize, uint64_t * gpuvm_address = NULL);
 extern void KmtUnmapFromGpu(void * memAddr);
+extern void * KmtGetVmHandle(void * memAddr);
 
 extern void KmtCreateQueue(uint32_t queue_type, void * ring_buff, uint32_t ring_size, HsaQueueResource * queue_src);
 extern void KmtDestroyQueue(uint64_t QueueId);
 
 extern HsaEvent * KmtCreateEvent();
+extern void KmtDestroyEvent(HsaEvent *Event);
+extern void KmtSetEvent(HsaEvent *Event);
+extern void KmtWaitOnEvent(HsaEvent *Event);
 
 // ==================================================================
-// hsa inner functions
+// HSA API
 // ==================================================================
 extern void hsaInitSdma();
 extern void hsaDeInitSdma();
 
-// ==================================================================
-// user API
-// ==================================================================
 extern void KmtHsaInit();
 extern void KmtHsaDeInit();
 
