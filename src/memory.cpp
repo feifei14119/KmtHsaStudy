@@ -235,7 +235,7 @@ void kfd_ioctrl_allocate_memory(void *memAddr, uint64_t memSize, uint32_t iocFla
 
 	//printf("ioc_flags = 0x%08X\n", iocFlag);
 	//printf("args.gpu_id = %d\n", args.gpu_id);
-	printf("args.flags = 0x%08X\n", args.flags);
+	//printf("args.flags = 0x%08X\n", args.flags);
 	//printf("args.handle = 0x%016X\n", args.handle);
 	//printf("args.mmap_offset = 0x%016X\n", args.mmap_offset);
 	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_ALLOC_MEMORY_OF_GPU, &args);
@@ -337,7 +337,7 @@ void kmtDeInitMem()
 
 void * KmtAllocDoorbell(uint64_t memSize, uint64_t doorbell_offset)
 {
-	printf("KmtAllocDoorbell\n");
+	//printf("KmtAllocDoorbell\n");
 
 	uint32_t ioc_flag = 0;
 	void * mem_addr = NULL;
@@ -368,7 +368,7 @@ void * KmtAllocDoorbell(uint64_t memSize, uint64_t doorbell_offset)
 }
 void * KmtAllocDevice(uint64_t memSize)
 {
-	printf("KmtAllocDevice\n");
+	//printf("KmtAllocDevice\n");
 
 	uint32_t ioc_flag = 0;
 	void * mem_addr = NULL;
@@ -399,7 +399,7 @@ void * KmtAllocDevice(uint64_t memSize)
 }
 void * KmtAllocHost(uint64_t memSize, bool isPage)
 {
-	printf("KmtAllocHost\n");
+	//printf("KmtAllocHost\n");
 
 	uint32_t ioc_flag = 0;
 	void * mem_addr = NULL;
@@ -455,7 +455,7 @@ void * KmtAllocHost(uint64_t memSize, bool isPage)
 
 void KmtReleaseMemory(void * memAddr)
 {
-	printf("KmtReleaseMemory\n");
+	//printf("KmtReleaseMemory\n");
 	vm_object_t * vm_obj = find_vm_obj(memAddr);
 
 	kfd_ioctrl_free_memory(vm_obj->handle);
@@ -465,7 +465,7 @@ void KmtReleaseMemory(void * memAddr)
 
 void KmtMapToGpu(void * memAddr, uint64_t memSize, uint64_t * gpuvm_address)
 {
-	printf("KmtMapToGpu\n");
+	//printf("KmtMapToGpu\n");
 
 	vm_object_t * vm_obj = find_vm_obj(memAddr);
 
@@ -500,7 +500,7 @@ void KmtMapToGpu(void * memAddr, uint64_t memSize, uint64_t * gpuvm_address)
 }
 void KmtUnmapFromGpu(void * memAddr)
 {
-	printf("KmtUnmapFromGpu\n");
+	//printf("KmtUnmapFromGpu\n");
 
 	vm_object_t * vm_obj = find_vm_obj(memAddr);
 
@@ -556,4 +556,14 @@ void HsaFreeMem(void * memAddr)
 	printf("HsaFreeMem\n");
 	KmtUnmapFromGpu(memAddr);
 	KmtReleaseMemory(memAddr);
+}
+
+void RunMemoryTest()
+{
+	void * addr;
+	addr = HsaAllocGPU(1024);
+	addr = HsaAllocCPU(1024);
+
+	addr = KmtAllocHost(1024, false);
+	KmtMapToGpu(addr, 1024);
 }

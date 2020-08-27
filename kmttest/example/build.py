@@ -22,7 +22,8 @@ def BuildKernel():
 def BuildTarget():	
 	if os.path.exists("./" + Target):
 		os.remove("./" + Target)		
-	cmd = 'hipcc example.cpp dispatch.cpp -I/opt/rocm/include/ -L/opt/rocm/lib -lhsa-runtime64 -O0 -w -std=c++11 -o ' + Target
+	#cmd = 'hipcc example.cpp dispatch.cpp -I/opt/rocm/include/ -L/opt/rocm/lib -lhsa-runtime64 -O0 -w -std=c++11 -o ' + Target
+	cmd = 'hipcc example.cpp dispatch.cpp -I/opt/rocm/include/ -L/home/feifei/ROCR-Runtime/src/build -lhsa-runtime64 -O0 -w -std=c++11 -o ' + Target
 	print(cmd)
 	text = execCmd(cmd)
 	print(text)

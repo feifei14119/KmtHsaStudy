@@ -152,11 +152,15 @@ bool Dispatch::Init()
   status = hsa_agent_get_info(agent, HSA_AGENT_INFO_QUEUE_MAX_SIZE, &queue_size);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_agent_get_info(HSA_AGENT_INFO_QUEUE_MAX_SIZE) failed", status); }
 
+  printf("+++++++++++++ hsa_queue_create +++++++++++++\n");
   status = hsa_queue_create(agent, queue_size, HSA_QUEUE_TYPE_MULTI, NULL, NULL, UINT32_MAX, UINT32_MAX, &queue);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_queue_create failed", status); }
+  printf("++++++++++++++++++++++++++++++++++++++++++++\n");
 
+  printf("+++++++++++++ hsa_signal_create ++++++++++++\n");
   status = hsa_signal_create(1, 0, NULL, &signal);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("hsa_signal_create failed", status); }
+  printf("++++++++++++++++++++++++++++++++++++++++++++\n");
 
   status = hsa_agent_iterate_regions(agent, FindRegions, this);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("Failed to iterate memory regions", status); }
@@ -216,7 +220,9 @@ bool Dispatch::RunDispatch()
   printf("aql kernarg_address = 0x%016lX\n",aql->kernarg_address);
   
   // Ring door bell
+  printf("+++++++++++++++ Ring door bell +++++++++++++\n");
   hsa_signal_store_relaxed(queue->doorbell_signal, packet_index);
+  printf("++++++++++++++++++++++++++++++++++++++++++++\n");
 
   return true;
 }
@@ -263,10 +269,13 @@ void Dispatch::SetDynamicGroupSegmentSize(uint32_t size)
 bool Dispatch::AllocateKernarg(uint32_t size)
 {
   hsa_status_t status;
+  printf("++++++++++++++++ AllocateKernarg +++++++++++\n");
   status = hsa_memory_allocate(kernarg_region, size, &kernarg);
   if (status != HSA_STATUS_SUCCESS) { return HsaError("Failed to allocate kernarg", status); }
   aql->kernarg_address = kernarg;
+  printf("kernel_arg_addr = 0x%016lX\n",kernarg);
   kernarg_offset = 0;
+  printf("++++++++++++++++++++++++++++++++++++++++++++\n");
   return true;
 }
 
@@ -348,10 +357,10 @@ bool Dispatch::Wait()
   clock_t beg = clock();
   hsa_signal_value_t result;
   do {
-    result = hsa_signal_wait_acquire(signal,
-      HSA_SIGNAL_CONDITION_EQ, 0, ~0ULL, HSA_WAIT_STATE_ACTIVE);
+    result = hsa_signal_wait_acquire(signal, HSA_SIGNAL_CONDITION_EQ, 0, ~0ULL, HSA_WAIT_STATE_ACTIVE);
     clock_t clocks = clock() - beg;
-    if (clocks > (clock_t) TIMEOUT * CLOCKS_PER_SEC) {
+    if (clocks > (clock_t) TIMEOUT * CLOCKS_PER_SEC) 
+	{
       output << "Kernel execution timed out, elapsed time: " << (long) clocks << std::endl;
       return false;
     }
@@ -414,28 +423,35 @@ Buffer* Dispatch::AllocateBuffer(size_t size, bool prefer_gpu_local)
   void* system_ptr = AllocateSystemMemory(size);
   if (!system_ptr) { return 0; }
 
-  if (prefer_gpu_local && gpu_local_region.handle != 0) {
+  if (prefer_gpu_local && gpu_local_region.handle != 0) 
+  {
     void* local_ptr = AllocateGPULocalMemory(size);
     if (!local_ptr) { free(system_ptr); return 0; }
     return new Buffer(size, local_ptr, system_ptr);
   }
 
-  if (local_region.handle != 0) {
+  if (local_region.handle != 0) 
+  {
     void* local_ptr = AllocateLocalMemory(size);
     if (!local_ptr) { free(system_ptr); return 0; }
     return new Buffer(size, local_ptr, system_ptr);
-  } else if (gpu_local_region.handle != 0) {
+  } 
+  else if (gpu_local_region.handle != 0) 
+  {
     void* local_ptr = AllocateGPULocalMemory(size);
     if (!local_ptr) { free(system_ptr); return 0; }
     return new Buffer(size, local_ptr, system_ptr);
-  } else {
+  } 
+  else 
+  {
     return new Buffer(size, system_ptr);
   }
 }
 
 bool Dispatch::CopyTo(Buffer* buffer)
 {
-  if (buffer->IsLocal()) {
+  if (buffer->IsLocal()) 
+  {
     return CopyToLocal(buffer->LocalPtr(), buffer->SystemPtr(), buffer->Size());
   }
   return true;
@@ -443,7 +459,8 @@ bool Dispatch::CopyTo(Buffer* buffer)
 
 bool Dispatch::CopyFrom(Buffer* buffer)
 {
-  if (buffer->IsLocal()) {
+  if (buffer->IsLocal()) 
+  {
     return CopyFromLocal(buffer->SystemPtr(), buffer->LocalPtr(), buffer->Size());
   }
   return true;
@@ -451,10 +468,12 @@ bool Dispatch::CopyFrom(Buffer* buffer)
 
 void Dispatch::KernargRaw(const void* ptr, size_t size, size_t align)
 {
+  printf("++++++++++++++++ KernargRaw ++++++++++++++++\n");
   assert((align & (align - 1)) == 0);
   kernarg_offset = ((kernarg_offset + align - 1) / align) * align;
   memcpy((char*) kernarg + kernarg_offset, ptr, size);
   kernarg_offset += size;
+  printf("++++++++++++++++++++++++++++++++++++++++++++\n");
 }
 
 void Dispatch::Kernarg(Buffer* buffer)
@@ -474,7 +493,8 @@ bool Dispatch::Run()
     Wait() &&
     Verify();
   std::string out = output.str();
-  if (!out.empty()) {
+  if (!out.empty()) 
+  {
     std::cout << out << std::endl;
   }
   std::cout << (res ? "Success" : "Failed") << std::endl;
@@ -491,7 +511,8 @@ uint64_t Dispatch::GetTimestampFrequency()
   uint64_t frequency;
   hsa_status_t status;
   status = hsa_system_get_info(HSA_SYSTEM_INFO_TIMESTAMP_FREQUENCY, &frequency);
-  if (status != HSA_STATUS_SUCCESS) {
+  if (status != HSA_STATUS_SUCCESS) 
+  {
     HsaError("hsa_system_get_info(HSA_SYSTEM_INFO_TIMESTAMP_FREQUENCY) failed", status);
     return 0;
   }

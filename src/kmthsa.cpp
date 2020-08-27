@@ -76,22 +76,14 @@ void kmtGetInfo()
 
 void KmtHsaInit()
 {
-	printf("==============================================\n");
-	printf("KmtHsaInit\n");
 	kmtOpen();
 	kmtGetInfo();
 	kmtInitMem();
 	hsaInitSdma();
-	printf("==============================================\n");
-	printf("\n");
 }
 void KmtHsaDeInit()
 {
-	printf("==============================================\n");
-	printf("KmtHsaDeInit\n");
 	hsaDeInitSdma();
 	kmtDeInitMem();
 	kmtClose();
-	printf("==============================================\n");
-	printf("\n");
 }

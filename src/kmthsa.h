@@ -109,6 +109,7 @@ extern void HsaAqlRingDoorbell();
 // ==================================================================
 extern void RunKmtTest();
 
+extern void RunMemoryTest();
 extern void RunSdmaTest();
 extern void RunEventTest();
 extern void RunAqlTest();

@@ -254,17 +254,17 @@ void HsaAqlCreate()
 	AqlQueueResource.Queue_write_ptr_aql = (uint64_t*)(&write_dispatch_id);
 	KmtCreateQueue(KFD_IOC_QUEUE_TYPE_COMPUTE_AQL, AqlQueueRingBuff, rb_size, &AqlQueueResource);
 
-	printf("\tqueue id      = 0x%016lX.\n", AqlQueueResource.QueueId);
+	//printf("\tqueue id      = 0x%016lX.\n", AqlQueueResource.QueueId);
 	//printf("\twrite pointer = 0x%016lX, Value = %d.\n", AqlQueueResource.QueueWptrValue, *AqlQueueResource.Queue_write_ptr);
 	//printf("\tread  pointer = 0x%016lX, Value = %d.\n", AqlQueueResource.QueueRptrValue, *AqlQueueResource.Queue_read_ptr);
-	printf("\twrite pointer = 0x%016lX.\n", AqlQueueResource.QueueWptrValue);
-	printf("\tread  pointer = 0x%016lX.\n", AqlQueueResource.QueueRptrValue);
-	printf("\tringbuff addr = 0x%016lX.\n", AqlQueueRingBuff);
-	printf("\tdoorbell addr = 0x%016lX.\n", AqlQueueResource.QueueDoorBell);
+	//printf("\twrite pointer = 0x%016lX.\n", AqlQueueResource.QueueWptrValue);
+	//printf("\tread  pointer = 0x%016lX.\n", AqlQueueResource.QueueRptrValue);
+	//printf("\tringbuff addr = 0x%016lX.\n", AqlQueueRingBuff);
+	//printf("\tdoorbell addr = 0x%016lX.\n", AqlQueueResource.QueueDoorBell);
 
 	AqlPkt = (hsa_kernel_dispatch_packet_t*)AqlQueueRingBuff;
 	memset(AqlPkt, 0, sizeof(AqlPacket));
-	printf("alloc rb addr = 0x%016lX, size = %ld\n", AqlQueueRingBuff, rb_size);
+	//printf("alloc rb addr = 0x%016lX, size = %ld\n", AqlQueueRingBuff, rb_size);
 
 	KernelArgsSize = 1024;
 	KernelArgsAddress = HsaAllocCPU(KERNEL_ARG_MAX_SIZE);
@@ -309,7 +309,7 @@ void HsaAqlSetKernelArg(void ** arg, size_t argSize)
 {
 	printf("HsaAqlSetKernelArg\n");
 	memcpy(KernelArgsPtr, arg, argSize);
-	printf("dst = 0x%016lX, src = 0x%016lX, size = %ld\n", KernelArgsPtr, arg, argSize);
+	//printf("dst = 0x%016lX, src = 0x%016lX, size = %ld\n", KernelArgsPtr, arg, argSize);
 	KernelArgsPtr = (char *)KernelArgsPtr + argSize;
 }
 

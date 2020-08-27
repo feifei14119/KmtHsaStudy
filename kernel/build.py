@@ -14,7 +14,7 @@ def execCmd(cmd):
 def BuildKernel():	
 	if os.path.exists("./" + Kernel):
 		os.remove("./" + Kernel)		
-	cmd = '/opt/rocm/bin/hcc -x assembler -target amdgcn-amd-amdhsa -mcpu=gfx906 -mno-code-object-v3 asm-kernel.s -o ' + Kernel
+	cmd = '/opt/rocm/bin/hcc -x assembler -target amdgcn-amd-amdhsa -mcpu=gfx906 -mno-code-object-v3 VectorAdd.s -o ' + Kernel
 	print(cmd)
 	text = execCmd(cmd)
 	print(text)

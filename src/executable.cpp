@@ -48,10 +48,10 @@ void create_code_object()
 
 	int seg_cnt = CodeObject->DataSegmentCount();
 	uint64_t size = CodeObject->DataSegment(seg_cnt - 1)->vaddr() + CodeObject->DataSegment(seg_cnt - 1)->memSize();
-	printf("seg_cnt = %d\n", seg_cnt);
-	printf("vaddr = 0x%016lX\n", CodeObject->DataSegment(seg_cnt - 1)->vaddr());
-	printf("memSize = %ld\n", CodeObject->DataSegment(seg_cnt - 1)->memSize());
-	printf("context alloc segment, size = %ld\n", size);
+	//printf("seg_cnt = %d\n", seg_cnt);
+	//printf("vaddr = 0x%016lX\n", CodeObject->DataSegment(seg_cnt - 1)->vaddr());
+	//printf("memSize = %ld\n", CodeObject->DataSegment(seg_cnt - 1)->memSize());
+	//printf("context alloc segment, size = %ld\n", size);
 	//CodeObject->Print(std::cout);
 }
 void context_alloc_memory()
@@ -65,7 +65,7 @@ void context_alloc_memory()
 	CtxDevPtr = HsaAllocGPU(CtxMemSize);
 	CtxHstPtr = HsaAllocCPU(CtxMemSize);
 
-	printf("\tdev_addr = 0x%016lX, hst_addr = 0x%016lX, size = %ld\n", CtxDevPtr, CtxHstPtr, CtxMemSize);
+	//printf("\tdev_addr = 0x%016lX, hst_addr = 0x%016lX, size = %ld\n", CtxDevPtr, CtxHstPtr, CtxMemSize);
 }
 void load_code_segment()
 {
@@ -82,9 +82,9 @@ void load_code_segment()
 		char * src_addr = (char*)seg->data();
 		uint64_t offset = seg_addr - seg_addr0;
 		uint64_t img_size = seg->imageSize();
-		printf("seg[%d], data = 0x%016lX, addr = 0x%016lX, offset = 0x%08X, size = 0x%08X\n", i, src_addr, seg_addr, offset, img_size);
+		//printf("seg[%d], data = 0x%016lX, addr = 0x%016lX, offset = 0x%08X, size = 0x%08X\n", i, src_addr, seg_addr, offset, img_size);
 		memcpy((char*)CtxHstPtr + offset, src_addr, img_size);
-		printf("copy, dst = 0x%016lX, src = 0x%016lX\n", (char*)CtxHstPtr + offset, src_addr);
+		//printf("copy, dst = 0x%016lX, src = 0x%016lX\n", (char*)CtxHstPtr + offset, src_addr);
 	}
 }
 void load_kenrel_symbol()
@@ -104,7 +104,7 @@ void load_kenrel_symbol()
 		if (!sym->IsDefinition())	continue;
 		if (!sym->IsKernelSymbol())	continue;
 
-		printf("\tkernel symbol[%d/%d]: %s\n\n", i, CodeObject->SymbolCount(), sym->Name().c_str());
+		printf("\tkernel symbol[%d/%d]: %s\n", i, CodeObject->SymbolCount(), sym->Name().c_str());
 		sec = sym->GetSection();
 		sec->getData(sym->SectionOffset(), &akc, sizeof(akc));
 
@@ -117,45 +117,31 @@ void load_kenrel_symbol()
 		uint64_t sec_size = sec->size();
 		uint64_t sec_offset = sym->SectionOffset();
 		uint64_t size = sec_size - sec_offset;
-		printf("\tsym_size = %ld, sec_size = %ld, offset = %ld\n", sym_size, sec_size, sec_offset);
-		printf("\tkernarg_segment_size = %d\n", kernarg_segment_size);
-		printf("\tkernarg_segment_alignment = %d\n", kernarg_segment_alignment);
-		printf("\tgroup_segment_size = %d\n", group_segment_size);
-		printf("\tprivate_segment_size = %d\n", private_segment_size);
-		printf("\tis_dynamic_callstack = %d\n", is_dynamic_callstack);
-		printf("\n");
+		//printf("\tsym_size = %ld, sec_size = %ld, offset = %ld\n", sym_size, sec_size, sec_offset);
+		//printf("\tkernarg_segment_size = %d\n", kernarg_segment_size);
+		//printf("\tkernarg_segment_alignment = %d\n", kernarg_segment_alignment);
+		//printf("\tgroup_segment_size = %d\n", group_segment_size);
+		//printf("\tprivate_segment_size = %d\n", private_segment_size);
+		//printf("\tis_dynamic_callstack = %d\n", is_dynamic_callstack);
+		//printf("\n");
 
 		uint64_t sym_addr = sym->VAddr();
-		printf("\tsym_addr = 0x%016lX\n", sym_addr);
+		//printf("\tsym_addr = 0x%016lX\n", sym_addr);
 		for (int j = 0; j < CodeObject->DataSegmentCount(); j++)
 		{
 			seg = CodeObject->DataSegment(j);
 			uint64_t seg_addr = seg->vaddr();
-			printf("\tseg[%d]: sym_addr = 0x%016lX\n", j, seg_addr);
+			//printf("\tseg[%d]: sym_addr = 0x%016lX\n", j, seg_addr);
 			if(sym_addr <= seg_addr)
 				break;
 		}
 
 		uint64_t address = (uint64_t)CtxDevPtr + (uint64_t)seg->vaddr();
-		printf("\taddress = 0x%016lX\n", address);
+		//printf("\taddress = 0x%016lX\n", address);
 
-		/*KernelSymbol *kernel_symbol = new KernelSymbol(true,
-			sym->GetModuleName(),
-			sym->GetSymbolName(),
-			sym->Linkage(),
-			true, // sym->IsDefinition()
-			kernarg_segment_size,
-			kernarg_segment_alignment,
-			group_segment_size,
-			private_segment_size,
-			is_dynamic_callstack,
-			size,
-			256,
-			address);*/
-
-		printf("\tsym->GetModuleName = %s\n", sym->GetModuleName().c_str());
-		printf("\tsym->GetSymbolName = %s\n", sym->GetSymbolName().c_str());
-		printf("\tsym->Linkage = %d\n", sym->Linkage());
+		//printf("\tsym->GetModuleName = %s\n", sym->GetModuleName().c_str());
+		//printf("\tsym->GetSymbolName = %s\n", sym->GetSymbolName().c_str());
+		//printf("\tsym->Linkage = %d\n", sym->Linkage());
 
 		KernelSymbolAddress = (void*)address;
 	}
@@ -179,9 +165,8 @@ void * HsaLoadKernel(string fileName)
 	load_code_segment();
 	load_kenrel_symbol();
 	freeze_executable();
+	printf("\n");
 
 	return KernelSymbolAddress;
-
-	printf("\n");
 }
 

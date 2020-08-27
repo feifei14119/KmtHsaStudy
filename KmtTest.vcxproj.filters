@@ -10,14 +10,11 @@
     <Filter Include="libamdhsacode\inc">
       <UniqueIdentifier>{72afa41b-fedf-42fb-96b4-d93f4670e300}</UniqueIdentifier>
     </Filter>
-    <Filter Include="kfdtest">
-      <UniqueIdentifier>{bfbb7055-965c-4c56-8655-08f417266d90}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="kfdtest\inc">
-      <UniqueIdentifier>{cc83a9a1-64b2-4551-9ec2-3021f536bdfa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{57130583-1c54-4982-97c0-108e234a31ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kernel">
+      <UniqueIdentifier>{1c9b3b59-6ec6-4284-a87e-d7bacc58ccda}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,30 +60,6 @@
     <ClInclude Include="libamdhsacode\hsa_ext_finalize.h">
       <Filter>libamdhsacode</Filter>
     </ClInclude>
-    <ClInclude Include="kmttest\AqlQueue.hpp">
-      <Filter>kfdtest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\BasePacket.hpp">
-      <Filter>kfdtest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\BaseQueue.hpp">
-      <Filter>kfdtest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\KFDTestUtil.hpp">
-      <Filter>kfdtest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\sdma_pkt_struct.h">
-      <Filter>kfdtest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\SDMAPacket.hpp">
-      <Filter>kfdtest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\SDMAQueue.hpp">
-      <Filter>kfdtest</Filter>
-    </ClInclude>
-    <ClInclude Include="kmttest\include\sdma_pkt_struct.h">
-      <Filter>kfdtest\inc</Filter>
-    </ClInclude>
     <ClInclude Include="src\kmthsa.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -113,27 +86,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="kmttest\AqlQueue.cpp">
-      <Filter>kfdtest</Filter>
-    </ClCompile>
-    <ClCompile Include="kmttest\BasePacket.cpp">
-      <Filter>kfdtest</Filter>
-    </ClCompile>
-    <ClCompile Include="kmttest\BaseQueue.cpp">
-      <Filter>kfdtest</Filter>
-    </ClCompile>
-    <ClCompile Include="kmttest\KFDTestUtil.cpp">
-      <Filter>kfdtest</Filter>
-    </ClCompile>
-    <ClCompile Include="kmttest\KmtTest.cpp">
-      <Filter>kfdtest</Filter>
-    </ClCompile>
-    <ClCompile Include="kmttest\SDMAPacket.cpp">
-      <Filter>kfdtest</Filter>
-    </ClCompile>
-    <ClCompile Include="kmttest\SDMAQueue.cpp">
-      <Filter>kfdtest</Filter>
-    </ClCompile>
     <ClCompile Include="src\memory.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -155,5 +107,16 @@
     <ClCompile Include="src\aql.cpp">
       <Filter>src</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="kernel\build.py">
+      <Filter>kernel</Filter>
+    </None>
+    <None Include="kernel\VectorAdd.co">
+      <Filter>kernel</Filter>
+    </None>
+    <None Include="kernel\VectorAdd.s">
+      <Filter>kernel</Filter>
+    </None>
   </ItemGroup>
 </Project>

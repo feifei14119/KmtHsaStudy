@@ -2,25 +2,26 @@
 
 //const string CodeBinFile = "/home/feifei/projects/kmt_test/out/isaPackedFp16.bin";
 //const string CodeBinFile = "/home/feifei/projects/kmt_test/kernel/asm-kernel.co";
-const string CodeBinFile = "/home/feifei/projects/kmt_test/out/VectorAdd.co";
+const string CodeBinFile = "/home/feifei/projects/kmt_test/kernel/VectorAdd.co";
 
-void * KernelHandle;
 
-int main(int argc, char *argv[])
+void RunSubTest()
 {
-	KmtHsaInit();
-	HsaAqlCreate();
-
+	RunMemoryTest();
 	//RunKmtTest();
 	//RunEventTest();
 	//RunSdmaTest();
-	//float * d_tmp;
-	//KernelHandle = HsaLoadKernel(CodeBinFile);
-	//HsaAqlCreate();
-	//HsaAqlSetPkt(HsaLoadKernel, 1, 1);
-	//HsaAqlSetKernelArg(d_tmp, sizeof(d_tmp));
+}
+
+int main(int argc, char *argv[])
+{
+	printf("++++++++++++++ KmtHsaInit ++++++++++++++++++++\n");
+	KmtHsaInit();
+
+	//RunSubTest();
 	//return 0;
-	
+
+	printf("++++++++++++++ Prepare Data ++++++++++++++++++\n");
 	uint32_t len = 1024;
 	float * h_A, *h_B, *h_C;
 	float * d_A, *d_B, *d_C;
@@ -37,10 +38,15 @@ int main(int argc, char *argv[])
 	for (uint32_t i = 0; i < len; i++)
 		h_B[i] = i*0.1f;
 
+	printf("++++++++++++++++ Copy To Gpu +++++++++++++++++\n");
 	HsaSdmaCopy(d_A, h_A, len * sizeof(float));
 	HsaSdmaCopy(d_B, h_B, len * sizeof(float));
 
-	KernelHandle = HsaLoadKernel(CodeBinFile);
+	printf("++++++++++++++++ Load Kernel +++++++++++++++++\n");
+	void * KernelHandle = HsaLoadKernel(CodeBinFile);
+
+	printf("++++++++++++++++ Launch Aql ++++++++++++++++++\n");
+	HsaAqlCreate();
 	HsaAqlSetPkt(KernelHandle, 256, 4*256);
 	HsaAqlSetKernelArg((void**)&d_A, sizeof(d_A));
 	HsaAqlSetKernelArg((void**)&d_B, sizeof(d_B));
@@ -48,23 +54,10 @@ int main(int argc, char *argv[])
 	HsaAqlRingDoorbell();
 	usleep(1000);
 
+	printf("++++++++++++++++ Copy Back +++++++++++++++++++\n");
 	HsaSdmaCopy(h_C, d_C, len * sizeof(float));
 
-	printf("source host data:\n");
-	for (uint32_t i = 0; i < 16; i++)
-	{
-		printf("%.1f, ", h_A[i]);
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("... ...\n");
-	for (uint32_t i = len - 16; i < len; i++)
-	{
-		printf("%.1f, ", h_A[i]);
-		if ((i + 1) % 8 == 0)
-			printf("\n");
-	}
-	printf("\n\ndest host data:\n");
+	printf("++++++++++++++++ Result ++++++++++++++++++++++\n");
 	for (uint32_t i = 0; i < 16; i++)
 	{
 		printf("%.1f, ", h_C[i]);
@@ -80,6 +73,7 @@ int main(int argc, char *argv[])
 	}
 	printf("\n");
 
+	printf("++++++++++++++ KmtHsaDeInit ++++++++++++++++++\n");
 	HsaFreeMem(h_A);
 	HsaFreeMem(h_B);
 	HsaFreeMem(h_C);
@@ -87,7 +81,6 @@ int main(int argc, char *argv[])
 	HsaFreeMem(d_B);
 	HsaFreeMem(d_C);
 
-	printf("\n");
 	KmtHsaDeInit();
 	return 0;
 }

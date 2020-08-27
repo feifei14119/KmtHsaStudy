@@ -30,14 +30,6 @@
     <ClInclude Include="include\hsakmt.h" />
     <ClInclude Include="include\hsakmttypes.h" />
     <ClInclude Include="include\linux\kfd_ioctl.h" />
-    <ClInclude Include="kmttest\AqlQueue.hpp" />
-    <ClInclude Include="kmttest\BasePacket.hpp" />
-    <ClInclude Include="kmttest\BaseQueue.hpp" />
-    <ClInclude Include="kmttest\include\sdma_pkt_struct.h" />
-    <ClInclude Include="kmttest\KFDTestUtil.hpp" />
-    <ClInclude Include="kmttest\SDMAPacket.hpp" />
-    <ClInclude Include="kmttest\SDMAQueue.hpp" />
-    <ClInclude Include="kmttest\sdma_pkt_struct.h" />
     <ClInclude Include="libamdhsacode\amd_elf_image.hpp" />
     <ClInclude Include="libamdhsacode\amd_hsa_code.hpp" />
     <ClInclude Include="libamdhsacode\amd_hsa_code_util.hpp" />
@@ -55,13 +47,6 @@
     <ClInclude Include="src\kmthsa.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="kmttest\AqlQueue.cpp" />
-    <ClCompile Include="kmttest\BasePacket.cpp" />
-    <ClCompile Include="kmttest\BaseQueue.cpp" />
-    <ClCompile Include="kmttest\KFDTestUtil.cpp" />
-    <ClCompile Include="kmttest\KmtTest.cpp" />
-    <ClCompile Include="kmttest\SDMAPacket.cpp" />
-    <ClCompile Include="kmttest\SDMAQueue.cpp" />
     <ClCompile Include="libamdhsacode\amd_elf_image.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code.cpp" />
     <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp" />
@@ -73,6 +58,17 @@
     <ClCompile Include="src\memory.cpp" />
     <ClCompile Include="src\queue.cpp" />
     <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="kernel\build.py">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="kernel\VectorAdd.co">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="kernel\VectorAdd.s">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5271357c-cc08-4eee-b29b-da33abfcaeff}</ProjectGuid>

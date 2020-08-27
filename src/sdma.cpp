@@ -461,14 +461,18 @@ void HsaSdmaCopy(void * dst, void * src, uint32_t copy_size)
 {
 	printf("HsaSdmaCopy\n");
 
+	//printf("build sdma copy command\n");
 	build_copy_cmd(dst, src, copy_size);
 
 	uint64_t cur_index, new_index;
 	cur_index = *SdmaQueueResource.Queue_read_ptr;
 	new_index = CommandSize;
 
+	//printf("ring doorbell\n");
 	*(SdmaQueueResource.Queue_write_ptr_aql) = new_index;
 	*(SdmaQueueResource.Queue_DoorBell_aql) = new_index;
+
+	//printf("wait command finish\n");
 	while (*SdmaQueueResource.Queue_write_ptr != *SdmaQueueResource.Queue_read_ptr)
 	{
 		usleep(1000);
