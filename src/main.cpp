@@ -1,12 +1,10 @@
 ﻿#include "kmthsa.h"
 
-//const string CodeBinFile = "/home/feifei/projects/kmt_test/out/isaPackedFp16.bin";
-//const string CodeBinFile = "/home/feifei/projects/kmt_test/kernel/asm-kernel.co";
 const string CodeBinFile = "/home/feifei/projects/kmt_test/kernel/VectorAdd.co";
-
 
 void RunSubTest()
 {
+	printf("++++++++++++++++ RunSubTest ++++++++++++++++++\n");
 	RunMemoryTest();
 	//RunKmtTest();
 	//RunEventTest();
@@ -45,8 +43,9 @@ int main(int argc, char *argv[])
 	printf("++++++++++++++++ Load Kernel +++++++++++++++++\n");
 	void * KernelHandle = HsaLoadKernel(CodeBinFile);
 
-	printf("++++++++++++++++ Launch Aql ++++++++++++++++++\n");
+	printf("++++++++++++++++ Create Aql ++++++++++++++++++\n");
 	HsaAqlCreate();
+	printf("++++++++++++++++ Launch Aql ++++++++++++++++++\n");
 	HsaAqlSetPkt(KernelHandle, 256, 4*256);
 	HsaAqlSetKernelArg((void**)&d_A, sizeof(d_A));
 	HsaAqlSetKernelArg((void**)&d_B, sizeof(d_B));

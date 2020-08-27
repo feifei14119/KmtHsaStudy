@@ -61,6 +61,8 @@ typedef struct
 
 // ==================================================================
 
+static bool dbg_print = false;
+
 int gDrmFd;
 uint32_t MemBankCount, CacheCount;
 HsaMemoryProperties MemBankProp;
@@ -86,12 +88,12 @@ void open_drm()
 
 	gDrmFd = open(DRM_RENDER_DEVICE(drm_render_minor), O_RDWR | O_CLOEXEC);
 	assert(gDrmFd != 0);
-	//printf("\topen node %d drm render device: \"%s\". fd = %d\n", gNodeIdx, DRM_RENDER_DEVICE(drm_render_minor), gDrmFd);
+	printf("\topen node %d drm render device: \"%s\". fd = %d\n", gNodeIdx, DRM_RENDER_DEVICE(drm_render_minor), gDrmFd);
 }
 void close_drm()
 {
 	close(gDrmFd);
-	//printf("\tclose drm rander file. fd = %d.\n", gDrmFd);
+	printf("\tclose drm rander file. fd = %d.\n", gDrmFd);
 }
 
 void get_mem_topology()
@@ -117,19 +119,19 @@ void get_mem_topology()
      *		mem_flag.NonPaged = 1;
      *		mem_flag.CoarseGrain = 1;
 	 */
-	//printf("\tget memory & caches topology info.\n");
+	printf("\tget memory & caches topology info.\n");
 	MemBankCount = kmtReadKey(KFD_NODE(gNodeIdx) + string("/properties"), "mem_banks_count");
 	CacheCount = kmtReadKey(KFD_NODE(gNodeIdx) + string("/properties"), "caches_count");
 
-	//printf("\t\tmemory bank count = %d.\n", MemBankCount);
+	printf("\t\tmemory bank count = %d.\n", MemBankCount);
 	MemBankProp.HeapType = (HSA_HEAPTYPE)kmtReadKey(KFD_NODE(gNodeIdx) + string("/mem_banks/0/properties"), "heap_type");
 	MemBankProp.SizeInBytes = kmtReadKey(KFD_NODE(gNodeIdx) + string("/mem_banks/0/properties"), "size_in_bytes");
 	MemBankProp.Flags.MemoryProperty = (uint32_t)kmtReadKey(KFD_NODE(gNodeIdx) + string("/mem_banks/0/properties"), "flags");
 	MemBankProp.VirtualBaseAddress = 0;
-	//printf("\t\t\theap type = %d.\n", MemBankProp.HeapType); // 2 = HSA_HEAPTYPE_FRAME_BUFFER_PRIVATE
-	//printf("\t\t\tsize = %.3f(GB).\n", MemBankProp.SizeInBytes / 1024.0 / 1024.0 / 1024.0);
+	printf("\t\t\theap type = %d.\n", MemBankProp.HeapType); // 2 = HSA_HEAPTYPE_FRAME_BUFFER_PRIVATE
+	printf("\t\t\tsize = %.3f(GB).\n", MemBankProp.SizeInBytes / 1024.0 / 1024.0 / 1024.0);
 
-	//printf("\t\tcache count = %d.\n", CacheCount);
+	printf("\t\tcache count = %d.\n", CacheCount);
 	uint32_t cacheCount = 0;
 	HsaCacheType cacheType;
 	uint32_t cacheLevel;
@@ -172,15 +174,15 @@ void get_process_apertures()
 	aperture_num = args_new.num_of_nodes;
 	assert(rtn == 0);
 
-	//printf("\tkfd gpu device apertures number = %d.\n", aperture_num);
-	//for (int i = 0; i < aperture_num; i++)
-	//{
-	//	printf("\t\t-----------------------\n");
-	//	printf("\t\tprocess apertures %d; gpu_id = %d; pad = %d.\n", i, kfd_dev_aperture[i].gpu_id, kfd_dev_aperture[i].pad);
-	//	printf("\t\tlds     base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture[i].lds_base, kfd_dev_aperture[i].lds_limit / 1024 / 1024 / 1024 / 1024);
-	//	printf("\t\tscratch base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture[i].scratch_base, kfd_dev_aperture[i].scratch_limit / 1024 / 1024 / 1024 / 1024);
-	//	printf("\t\tgpuvm   base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture[i].gpuvm_base, kfd_dev_aperture[i].gpuvm_limit / 1024 / 1024 / 1024 / 1024);
-	//}
+	printf("\tkfd gpu device apertures number = %d.\n", aperture_num);
+	for (int i = 0; i < aperture_num; i++)
+	{
+		printf("\t\t-----------------------\n");
+		printf("\t\tprocess apertures %d; gpu_id = %d; pad = %d.\n", i, kfd_dev_aperture[i].gpu_id, kfd_dev_aperture[i].pad);
+		printf("\t\tlds     base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture[i].lds_base, kfd_dev_aperture[i].lds_limit / 1024 / 1024 / 1024 / 1024);
+		printf("\t\tscratch base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture[i].scratch_base, kfd_dev_aperture[i].scratch_limit / 1024 / 1024 / 1024 / 1024);
+		printf("\t\tgpuvm   base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture[i].gpuvm_base, kfd_dev_aperture[i].gpuvm_limit / 1024 / 1024 / 1024 / 1024);
+	}
 }
 void init_svm_apertures()
 {
@@ -190,14 +192,13 @@ void init_svm_apertures()
 	svm_dgpu_aperture.guard_pages = 1;
 	svm_dgpu_aperture.is_cpu_accessible = true;
 
-	//printf("\tinit svm dgpu aperture.\n");
-	//printf("\t\tsvm gpu base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture->gpuvm_base, kfd_dev_aperture->gpuvm_limit / 1024 / 1024 / 1024 / 1024);
+	printf("\tinit svm dgpu aperture.\n");
+	printf("\t\tsvm gpu base = 0x%016lX.\tlimit = %ld(TB).\n", kfd_dev_aperture->gpuvm_base, kfd_dev_aperture->gpuvm_limit / 1024 / 1024 / 1024 / 1024);
 }
 
 void * mmap_aperture_allocate(uint64_t memSize)
 {
 	// 在内存的空间找到一个可以map的空间,并将地址返回
-	//printf("\tmmap aperture allocate:\n");
 
 	memSize += gPageSize;//aligned_padded_size = size + align + 2*guard_size - PAGE_SIZE;
 
@@ -207,7 +208,13 @@ void * mmap_aperture_allocate(uint64_t memSize)
 	mem_addr = mmap(0, memSize, prot, flag, -1, 0);
 	assert(mem_addr != MAP_FAILED);
 
-	//printf("\t\talloc addr = 0x%016lX\n", mem_addr);
+	if (dbg_print)
+	{
+		printf("\tmmap_aperture_allocate\n");
+		printf("\t\tanonymous map\n");
+		printf("\t\taddr = 0x%016lX\n", mem_addr);
+		printf("\t\tsize = 0x%016lX\n", memSize);
+	}
 
 	return mem_addr;
 }
@@ -215,15 +222,16 @@ void mmap_aperture_release(void * memAddr, uint64_t memSize)
 {
 	munmap(memAddr, memSize);
 
-	//printf("\tmmap aperture release:\n");
-	//printf("\t\taddress = 0x%016lX\n", memAddr);
-	//printf("\t\tsize    = 0x%016lX\n", memSize);
+	if (dbg_print)
+	{
+		printf("\tmmap aperture release:\n");
+		printf("\t\taddress = 0x%016lX\n", memAddr);
+		printf("\t\tsize    = 0x%016lX\n", memSize);
+	}
 }
 
 void kfd_ioctrl_allocate_memory(void *memAddr, uint64_t memSize, uint32_t iocFlag, uint64_t *mmap_offset, uint64_t *handle)
 {
-	//printf("\tkfd ioctrl allocate memory:\n");
-
 	struct kfd_ioctl_alloc_memory_of_gpu_args args = { 0 };
 	args.gpu_id = gGpuId;
 	args.va_addr = (uint64_t)memAddr;
@@ -233,22 +241,21 @@ void kfd_ioctrl_allocate_memory(void *memAddr, uint64_t memSize, uint32_t iocFla
 		args.mmap_offset = *mmap_offset;
 	args.mmap_offset = (uint64_t)memAddr;
 
-	//printf("ioc_flags = 0x%08X\n", iocFlag);
-	//printf("args.gpu_id = %d\n", args.gpu_id);
-	//printf("args.flags = 0x%08X\n", args.flags);
-	//printf("args.handle = 0x%016X\n", args.handle);
-	//printf("args.mmap_offset = 0x%016X\n", args.mmap_offset);
 	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_ALLOC_MEMORY_OF_GPU, &args);
 	assert(rtn == 0);
 
-	//printf("\t\tusr offset = 0x%016lX\n", *mmap_offset);
-	//printf("\t\tmap offset = 0x%016lX\n", args.mmap_offset);
-	//printf("\t\tbo  handle = 0x%016lX\n", args.handle);
+	if (dbg_print)
+	{
+		printf("\tkfd ioctrl allocate memory:\n");
+		printf("\t\targs.flags  = 0x%08X\n", args.flags);
+		printf("\t\tusr  offset = 0x%016lX\n", *mmap_offset);
+		printf("\t\targs offset = 0x%016lX\n", args.mmap_offset);
+		printf("\t\targs handle = 0x%016lX\n", args.handle);
+		printf("\t\tsize        = 0x%016lX\n", memSize);
+	}
 
 	*mmap_offset = args.mmap_offset;
 	*handle = args.handle;
-	//printf("args.handle = 0x%016X\n", args.handle);
-	//printf("args.mmap_offset = 0x%016X\n", args.mmap_offset);
 }
 void kfd_ioctrl_free_memory(uint64_t handle)
 {
@@ -256,8 +263,11 @@ void kfd_ioctrl_free_memory(uint64_t handle)
 	args.handle = handle;
 	kmtIoctl(gKfdFd, AMDKFD_IOC_FREE_MEMORY_OF_GPU, &args);
 
-	//printf("\tkfd ioctrl free memory:\n");
-	//printf("\t\thandle  = 0x%016lX\n", handle);
+	if (dbg_print)
+	{
+		printf("\tkfd ioctrl free memory:\n");
+		printf("\t\thandle  = 0x%016lX\n", handle);
+	}
 }
 
 vm_object_t * find_vm_obj(void * memAddr)
@@ -274,12 +284,18 @@ vm_object_t * find_vm_obj(void * memAddr)
 
 	vm_object_t * vm_obj = (obj_idx == MAX_VM_OBJ_NUM) ? NULL : vm_obj_array[obj_idx];
 
+	if (dbg_print)
+	{
+		printf("\tfind_vm_obj idx = %d\n", obj_idx);
+		printf("\t\tvmobj start  = 0x%016lX\n", vm_obj->start);
+		printf("\t\tvmobj handle = 0x%016lX\n", vm_obj->handle);
+		printf("\t\tvmobj size   = 0x%016lX\n", vm_obj->size);
+	}
+
 	return vm_obj;
 }
 vm_object_t * create_memory_object(void *memAddr, uint64_t memSize, uint64_t handle)
 {
-	//printf("\tcreate %d vm object:\n", vm_obj_cnt);
-
 	vm_object_t * vm_obj = (vm_object_t *)malloc(sizeof(vm_object_t));
 	vm_obj->start = memAddr;
 	vm_obj->userptr = NULL;
@@ -298,14 +314,17 @@ vm_object_t * create_memory_object(void *memAddr, uint64_t memSize, uint64_t han
 	vm_obj->metadata = NULL;
 	vm_obj->user_data = NULL;
 	vm_obj->is_imported_kfd_bo = false;
-	//vm_obj->node.key = rbtree_key((unsigned long)start, size);
-	//vm_obj->user_node.key = rbtree_key(0, 0);
 
 	vm_obj_array[vm_obj_cnt] = vm_obj;
 	vm_obj_cnt++;
 
-	//printf("\t\tvmobj start  = 0x%016lX\n", vm_obj->start);
-	//printf("\t\tvmobj handle = 0x%016lX\n", vm_obj->handle);
+	if (dbg_print)
+	{
+		printf("\tcreate %dth vm object:\n", vm_obj_cnt);
+		printf("\t\tvmobj start  = 0x%016lX\n", vm_obj->start);
+		printf("\t\tvmobj handle = 0x%016lX\n", vm_obj->handle);
+		printf("\t\tvmobj size   = 0x%016lX\n", vm_obj->size);
+	}
 
 	return vm_obj;
 }
@@ -337,69 +356,82 @@ void kmtDeInitMem()
 
 void * KmtAllocDoorbell(uint64_t memSize, uint64_t doorbell_offset)
 {
-	//printf("KmtAllocDoorbell\n");
+	if (dbg_print)
+		printf("KmtAllocDoorbell\n");
 
 	uint32_t ioc_flag = 0;
 	void * mem_addr = NULL;
 	uint64_t mmap_offset = 0;
 	uint64_t handle;
 
-	//printf("mmap_aperture_allocate\n");
 	mem_addr = mmap_aperture_allocate(memSize);
 
-	//printf("ioctrl allocate gpu\n");
 	ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_DOORBELL;
 	ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_WRITABLE;
 	ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_COHERENT;
 	kfd_ioctrl_allocate_memory(mem_addr, memSize, ioc_flag, &mmap_offset, &handle);
 
-	//printf("create_memory_object\n");
 	create_memory_object(mem_addr, memSize, handle);
 
-	//printf("mmap_to_cpu\n");
 	bool HostAccess = true;
 	int map_fd = doorbell_offset >= (1ULL << 40) ? gKfdFd : gDrmFd; // if doorbell use kfd_fd
 	int prot = HostAccess ? PROT_READ | PROT_WRITE : PROT_NONE;
 	int flag = HostAccess ? MAP_SHARED | MAP_FIXED : MAP_PRIVATE | MAP_FIXED;
 	void * map_ptr = mmap(mem_addr, memSize, prot, flag, map_fd, doorbell_offset);
 	assert(map_ptr != MAP_FAILED);
+	if (dbg_print)
+	{
+		printf("\tmmap to file\n");
+		printf("\t\tmap_fd = %d, HostAccess = %d\n", map_fd, HostAccess);
+		printf("\t\tmap addr   = 0x%016lX\n", mem_addr);
+		printf("\t\tmap offset = 0x%016lX\n", mmap_offset);
+		printf("\t\tmap_ptr    = 0x%016lX\n", map_ptr);
+	}
 
 	return mem_addr;
 }
 void * KmtAllocDevice(uint64_t memSize)
 {
-	//printf("KmtAllocDevice\n");
+	if (dbg_print)
+		printf("KmtAllocDevice\n");
 
 	uint32_t ioc_flag = 0;
 	void * mem_addr = NULL;
 	uint64_t mmap_offset = 0;
 	uint64_t handle;
 
-	//printf("mmap_aperture_allocate\n");
 	mem_addr = mmap_aperture_allocate(memSize);
 
-	//printf("ioctrl allocate gpu\n");
 	ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_VRAM;
 	ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_EXECUTABLE;
 	ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_WRITABLE;
 	kfd_ioctrl_allocate_memory(mem_addr, memSize, ioc_flag, &mmap_offset, &handle);
 
-	//printf("create_memory_object\n");
-	create_memory_object(mem_addr, memSize, handle);
+	//create_memory_object(mem_addr, memSize, handle); where kmt put it
 
-	//printf("mmap_to_cpu\n");
 	bool HostAccess = false;
 	int map_fd = mmap_offset >= (1ULL << 40) ? gKfdFd : gDrmFd; // if doorbell use kfd_fd
 	int prot = HostAccess ? PROT_READ | PROT_WRITE : PROT_NONE;
 	int flag = HostAccess ? MAP_SHARED | MAP_FIXED : MAP_PRIVATE | MAP_FIXED;
 	void * map_ptr = mmap(mem_addr, memSize, prot, flag, map_fd, mmap_offset);
 	assert(map_ptr != MAP_FAILED);
+	if (dbg_print)
+	{
+		printf("\tmmap to file\n");
+		printf("\t\tmap_fd = %d, HostAccess = %d\n", map_fd, HostAccess);
+		printf("\t\tmap addr   = 0x%016lX\n", mem_addr);
+		printf("\t\tmap offset = 0x%016lX\n", mmap_offset);
+		printf("\t\tmap_ptr    = 0x%016lX\n", map_ptr);
+	}
+
+	create_memory_object(mem_addr, memSize, handle);
 
 	return mem_addr;
 }
 void * KmtAllocHost(uint64_t memSize, bool isPage)
 {
-	//printf("KmtAllocHost\n");
+	if (dbg_print)
+		printf("KmtAllocHost\n");
 
 	uint32_t ioc_flag = 0;
 	void * mem_addr = NULL;
@@ -408,45 +440,52 @@ void * KmtAllocHost(uint64_t memSize, bool isPage)
 
 	if (isPage == false)
 	{
-		//printf("mmap_aperture_allocate\n");
 		mem_addr = mmap_aperture_allocate(memSize);
 
-		//printf("ioctrl allocate gpu\n");
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_GTT;
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_EXECUTABLE;
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_COHERENT;
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_WRITABLE;
 		kfd_ioctrl_allocate_memory(mem_addr, memSize, ioc_flag, &mmap_offset, &handle);
 
-		//printf("mmap_to_cpu\n");
 		int map_fd = mmap_offset >= (1ULL << 40) ? gKfdFd : gDrmFd;
 		int prot = PROT_READ | PROT_WRITE;
 		int flag = MAP_SHARED | MAP_FIXED;
 		void * map_ptr = mmap(mem_addr, memSize, prot, flag, map_fd, mmap_offset);
 		assert(map_ptr != MAP_FAILED);
+		if (dbg_print)
+		{
+			printf("\tmmap to file\n");
+			printf("\t\tmap_fd = %d, HostAccess = 1\n", map_fd);
+			printf("\t\tmap addr   = 0x%016lX\n", mem_addr);
+			printf("\t\tmap offset = 0x%016lX\n", mmap_offset);
+			printf("\t\tmap_ptr    = 0x%016lX\n", map_ptr);
+		}
 
-		//printf("create_memory_object\n");
 		create_memory_object(mem_addr, memSize, handle);
 	}
 	if (isPage == true)
 	{
-		//printf("mmap_aperture_allocate\n");
 		mem_addr = mmap_aperture_allocate(memSize);
 
-		//printf("mmap_to_cpu\n");
 		int prot = PROT_READ | PROT_WRITE;
 		int flag = MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED;
 		void * map_ptr = mmap(mem_addr, memSize, prot, flag, -1, mmap_offset);
 		assert(map_ptr != MAP_FAILED);
+		if (dbg_print)
+		{
+			printf("\tmmap anonymous\n");
+			printf("\t\tmap addr   = 0x%016lX\n", mem_addr);
+			printf("\t\tmap offset = 0x%016lX\n", mmap_offset);
+			printf("\t\tmap_ptr    = 0x%016lX\n", map_ptr);
+		}
 
-		//printf("ioctrl allocate gpu\n");
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_USERPTR;
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_EXECUTABLE;
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_COHERENT;
 		ioc_flag |= KFD_IOC_ALLOC_MEM_FLAGS_WRITABLE;
 		kfd_ioctrl_allocate_memory(mem_addr, memSize, ioc_flag, &mmap_offset, &handle);
 
-		//printf("create_memory_object\n");
 		create_memory_object(mem_addr, memSize, handle);
 	}
 
@@ -455,7 +494,9 @@ void * KmtAllocHost(uint64_t memSize, bool isPage)
 
 void KmtReleaseMemory(void * memAddr)
 {
-	//printf("KmtReleaseMemory\n");
+	if (dbg_print)
+		printf("KmtReleaseMemory\n");
+
 	vm_object_t * vm_obj = find_vm_obj(memAddr);
 
 	kfd_ioctrl_free_memory(vm_obj->handle);
@@ -465,7 +506,8 @@ void KmtReleaseMemory(void * memAddr)
 
 void KmtMapToGpu(void * memAddr, uint64_t memSize, uint64_t * gpuvm_address)
 {
-	//printf("KmtMapToGpu\n");
+	if (dbg_print)
+		printf("KmtMapToGpu\n");
 
 	vm_object_t * vm_obj = find_vm_obj(memAddr);
 
@@ -476,31 +518,31 @@ void KmtMapToGpu(void * memAddr, uint64_t memSize, uint64_t * gpuvm_address)
 		memSize = vm_obj->size;
 		vm_obj->mapping_count++;
 		if (gpuvm_address != NULL)
+		{
 			*gpuvm_address = (uint64_t)((char*)memAddr + page_offset);
+		}
 		return;
 	}
+
 	struct kfd_ioctl_map_memory_to_gpu_args args = { 0 };
 	args.handle = vm_obj->handle;
 	args.device_ids_array_ptr = (uint64_t)&gGpuId;
 	args.n_devices = 1;
 	args.n_success = 0;
-	//printf("args.handle = 0x%016lX \n", args.handle);
-	//printf("args.device_ids_array_ptr = 0x%016lX \n", args.device_ids_array_ptr);
-	//printf("args.n_devices = %d \n", args.n_devices);
-	//printf("args.n_success = %d \n", args.n_success);
-	
-	//printf("ioctrl map to gpu\n");
 	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_MAP_MEMORY_TO_GPU, &args);
-	//printf("args.n_success = %d \n", args.n_success);
 	assert(rtn == 0);
 	vm_obj->mapping_count = 1;
-
-	//printf("\t\tmap addr    = 0x%016lX\n", memAddr);
-	//printf("\t\tmap handle  = 0x%016lX\n", vm_obj->handle);
+	if (dbg_print)
+	{
+		printf("\tioctrl map to gpu\n");
+		printf("\t\targs.handle = 0x%016lX\n", args.handle);
+		printf("\t\tmap addr    = 0x%016lX\n", memAddr);
+	}
 }
 void KmtUnmapFromGpu(void * memAddr)
 {
-	//printf("KmtUnmapFromGpu\n");
+	if (dbg_print)
+		printf("KmtUnmapFromGpu\n");
 
 	vm_object_t * vm_obj = find_vm_obj(memAddr);
 
@@ -511,9 +553,11 @@ void KmtUnmapFromGpu(void * memAddr)
 	args.n_success = 0;
 	int rtn = kmtIoctl(gKfdFd, AMDKFD_IOC_UNMAP_MEMORY_FROM_GPU, &args);
 	assert(rtn == 0);
-
-	//printf("\tunmap to gpu: \n");
-	//printf("\t\taddress = 0x%016lX\n", memAddr);
+	if (dbg_print)
+	{
+		printf("\tioctrl map to gpu\n");
+		printf("\t\taddress = 0x%016lX\n", memAddr);
+	}
 }
 
 void * KmtGetVmHandle(void * memAddr)
@@ -534,7 +578,8 @@ void * HsaAllocCPU(uint64_t memSize)
 
 	mem_addr = KmtAllocHost(mem_size);
 	KmtMapToGpu(mem_addr, mem_size);
-
+	
+	printf("mem_addr = 0x%016lX\n", mem_addr);
 	printf("\n");
 	return mem_addr;
 }
@@ -547,7 +592,8 @@ void * HsaAllocGPU(uint64_t memSize)
 
 	mem_addr = KmtAllocDevice(mem_size);
 	KmtMapToGpu(mem_addr, mem_size);
-
+	
+	printf("mem_addr = 0x%016lX\n", mem_addr);
 	printf("\n");
 	return mem_addr;
 }
@@ -560,10 +606,15 @@ void HsaFreeMem(void * memAddr)
 
 void RunMemoryTest()
 {
+	dbg_print = true;
 	void * addr;
+	printf("\n================ HsaAllocGPU =================\n");
 	addr = HsaAllocGPU(1024);
+
+	printf("\n================ HsaAllocCPU =================\n");
 	addr = HsaAllocCPU(1024);
 
+	printf("\n============ HsaAllocCPU NoPage ==============\n");
 	addr = KmtAllocHost(1024, false);
 	KmtMapToGpu(addr, 1024);
 }
