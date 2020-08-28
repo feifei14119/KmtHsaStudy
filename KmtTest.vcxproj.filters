@@ -7,9 +7,6 @@
     <Filter Include="libamdhsacode">
       <UniqueIdentifier>{ec0f6d65-cbd2-4ba0-b7db-8fa6f641b9bc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libamdhsacode\inc">
-      <UniqueIdentifier>{72afa41b-fedf-42fb-96b4-d93f4670e300}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{57130583-1c54-4982-97c0-108e234a31ea}</UniqueIdentifier>
     </Filter>
@@ -18,46 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="libamdhsacode\inc\amd_hsa_common.h">
-      <Filter>libamdhsacode\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\inc\amd_hsa_elf.h">
-      <Filter>libamdhsacode\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\inc\amd_hsa_kernel_code.h">
-      <Filter>libamdhsacode\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\inc\Brig.h">
-      <Filter>libamdhsacode\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\inc\hsa_ext_finalize.h">
-      <Filter>libamdhsacode\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\amd_elf_image.hpp">
-      <Filter>libamdhsacode</Filter>
-    </ClInclude>
     <ClInclude Include="libamdhsacode\amd_hsa_code.hpp">
-      <Filter>libamdhsacode</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\amd_hsa_code_util.hpp">
-      <Filter>libamdhsacode</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\inc\hsa.h">
-      <Filter>libamdhsacode\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\amd_hsa_common.h">
-      <Filter>libamdhsacode</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\amd_hsa_elf.h">
-      <Filter>libamdhsacode</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\amd_hsa_kernel_code.h">
-      <Filter>libamdhsacode</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\hsa.h">
-      <Filter>libamdhsacode</Filter>
-    </ClInclude>
-    <ClInclude Include="libamdhsacode\hsa_ext_finalize.h">
       <Filter>libamdhsacode</Filter>
     </ClInclude>
     <ClInclude Include="src\kmthsa.h">
@@ -72,17 +30,32 @@
     <ClInclude Include="include\linux\kfd_ioctl.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_elf_image.hpp">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_elf.h">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_common.h">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_kernel_code.h">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\hsa.h">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\hsa_ext_finalize.h">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\amd_hsa_code_util.hpp">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
+    <ClInclude Include="libamdhsacode\Brig.h">
+      <Filter>libamdhsacode</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="libamdhsacode\amd_elf_image.cpp">
-      <Filter>libamdhsacode</Filter>
-    </ClCompile>
-    <ClCompile Include="libamdhsacode\amd_hsa_code.cpp">
-      <Filter>libamdhsacode</Filter>
-    </ClCompile>
-    <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp">
-      <Filter>libamdhsacode</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -106,6 +79,15 @@
     </ClCompile>
     <ClCompile Include="src\aql.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="libamdhsacode\amd_elf_image.cpp">
+      <Filter>libamdhsacode</Filter>
+    </ClCompile>
+    <ClCompile Include="libamdhsacode\amd_hsa_code.cpp">
+      <Filter>libamdhsacode</Filter>
+    </ClCompile>
+    <ClCompile Include="libamdhsacode\amd_hsa_code_util.cpp">
+      <Filter>libamdhsacode</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

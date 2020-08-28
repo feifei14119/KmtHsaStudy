@@ -36,14 +36,9 @@
     <ClInclude Include="libamdhsacode\amd_hsa_common.h" />
     <ClInclude Include="libamdhsacode\amd_hsa_elf.h" />
     <ClInclude Include="libamdhsacode\amd_hsa_kernel_code.h" />
+    <ClInclude Include="libamdhsacode\Brig.h" />
     <ClInclude Include="libamdhsacode\hsa.h" />
     <ClInclude Include="libamdhsacode\hsa_ext_finalize.h" />
-    <ClInclude Include="libamdhsacode\inc\amd_hsa_common.h" />
-    <ClInclude Include="libamdhsacode\inc\amd_hsa_elf.h" />
-    <ClInclude Include="libamdhsacode\inc\amd_hsa_kernel_code.h" />
-    <ClInclude Include="libamdhsacode\inc\Brig.h" />
-    <ClInclude Include="libamdhsacode\inc\hsa.h" />
-    <ClInclude Include="libamdhsacode\inc\hsa_ext_finalize.h" />
     <ClInclude Include="src\kmthsa.h" />
   </ItemGroup>
   <ItemGroup>
@@ -124,7 +119,7 @@
       <StrictAliasing>false</StrictAliasing>
       <ThreadSafeStatics>Yes</ThreadSafeStatics>
       <ExceptionHandling>Enabled</ExceptionHandling>
-      <AdditionalIncludeDirectories>C:\Users\feiw\source\repos\kmt_test\libamdhsacode;C:\Users\feiw\source\repos\kmt_test\includekmt;C:\Users\feiw\source\repos\kmt_test\kmttest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\feiw\source\repos\kmt_test\libamdhsacode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PositionIndependentCode>true</PositionIndependentCode>
     </ClCompile>
     <PreBuildEvent>
@@ -133,8 +128,8 @@
     </PreBuildEvent>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <LibraryDependencies>elf;hsakmt;%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>/home/feifei/projects/kmt_test/libelf;/opt/rocm/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>elf;%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

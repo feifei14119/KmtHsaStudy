@@ -493,7 +493,7 @@ struct kfd_ioctl_acquire_vm_args {
  */
 struct kfd_ioctl_alloc_memory_of_gpu_args {
 	__u64 va_addr;		/* to KFD */
-	__u64 size;		/* to KFD */
+	__u64 size;		    /* to KFD */
 	__u64 handle;		/* from KFD */
 	__u64 mmap_offset;	/* to KFD (userptr), from KFD (mmap offset) */
 	__u32 gpu_id;		/* to KFD */

@@ -9,6 +9,9 @@ void RunSubTest()
 	//RunKmtTest();
 	//RunEventTest();
 	//RunSdmaTest();
+
+	printf("++++++++++++++ KmtHsaDeInit ++++++++++++++++++\n");
+	KmtHsaDeInit();
 }
 
 int main(int argc, char *argv[])
@@ -16,8 +19,7 @@ int main(int argc, char *argv[])
 	printf("++++++++++++++ KmtHsaInit ++++++++++++++++++++\n");
 	KmtHsaInit();
 
-	//RunSubTest();
-	//return 0;
+	//RunSubTest(); return 0;
 
 	printf("++++++++++++++ Prepare Data ++++++++++++++++++\n");
 	uint32_t len = 1024;
