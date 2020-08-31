@@ -2,15 +2,15 @@
 cmake_minimum_required ( VERSION 3.5.0 )
 set(CMAKE_C_STANDARD 11)
 
-project(KmtHsaTest)
+project(KmtHsaStudy)
 
 SET(CMAKE_C_COMPILER g++)
 ADD_COMPILE_OPTIONS(-std=c++11)
-set ( KMTHSA_TARGET "KmtHsaTest.out" )
+set ( PROJ_TARGET "KmtHsaStudy.out" )
 
 ## Source files
 #aux_source_directory(<dir> <variable>)
-set (SRC 
+set (PROJ_SRC 
 		"src/kmthsa.cpp"
 		"src/memory.cpp"
 		"src/queue.cpp"
@@ -29,6 +29,5 @@ include_directories ( ${CMAKE_CURRENT_SOURCE_DIR}/libamdhsacode )
 include_directories ( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
 #add_library (libelf.a)
-add_executable ( ${KMTHSA_TARGET} ${SRC} )
-
-target_link_libraries(${KMTHSA_TARGET}  ${CMAKE_CURRENT_SOURCE_DIR}/libamdhsacode/libelf/libelf.a)
+add_executable ( ${PROJ_TARGET} ${PROJ_SRC} )
+target_link_libraries(${PROJ_TARGET}  ${CMAKE_CURRENT_SOURCE_DIR}/libamdhsacode/libelf/libelf.a)
