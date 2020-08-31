@@ -1,6 +1,6 @@
 ﻿#include "kmthsa.h"
 
-const string CodeBinFile = "/home/feifei/projects/kmt_test/kernel/VectorAdd.co";
+const string CodeBinFile = "../kernel/VectorAdd.co";
 
 void RunSubTest()
 {
