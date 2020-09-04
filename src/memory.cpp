@@ -149,28 +149,31 @@ void get_mem_topology()
 		printf("\t\t\tsize = %.3f(GB).\n", gpuMemProp.SizeInBytes / 1024.0 / 1024.0 / 1024.0);
 	}
 
-	return;
 	uint32_t cacheCount;
-	HsaCacheType cacheType;
+	uint32_t dataCacheCnt = 0;
+	uint32_t instrCacheCnt = 0;
 	cacheCount = kmtReadKey(KFD_NODE(gNodeIdx) + string("/properties"), "caches_count");
+	printf("\tget gpu cache topology, cache count = %d\n", cacheCount);
 	for (uint32_t i = 0; i < cacheCount; i++)
 	{
+		HsaCacheType cacheType;
 		string cache_path = string(KFD_NODE(gNodeIdx)) + string("/caches/") + std::to_string(i) + string("/properties");
 		cacheType.Value = (uint32_t)kmtReadKey(cache_path, "type");
 		uint32_t cacheLevel = (uint32_t)kmtReadKey(cache_path, "level");
 		uint32_t cacheSize = (uint32_t)kmtReadKey(cache_path, "size");
 
-		uint32_t noInstrCacheCnt = 0;
-		if (!(cacheType.ui32.HSACU != 1 || cacheType.ui32.Instruction == 1))
-		{
-			//printf("[%02d] level = %d, size = %d(KB).\n", i, cacheLevel, cacheSize);
-			noInstrCacheCnt++;
-		}
+		string cachetype = "";
+		if (cacheType.ui32.Data == 1) { cachetype = cachetype + "Data,"; dataCacheCnt++; }
+		if (cacheType.ui32.Instruction == 1) { cachetype = cachetype + "Instruction,"; instrCacheCnt++; }
+		if (cacheType.ui32.CPU == 1) { cachetype = cachetype + "CPU,"; }
+		if (cacheType.ui32.HSACU == 1) { cachetype = cachetype + "HSACU,"; }
+
+		printf("\t\t[%02d]: level = %d, size = %d, type = %s\n", i, cacheLevel, cacheSize, cachetype.c_str());
 	}
 	
-	//printf("\t\tcache count = %d.\n", CacheCount);
-	//printf("\t\tnon-instruction cache count = %d.\n", noInstrCacheCnt);
-	//printf("\t\tinstruction cache count = %d.\n", CacheCount - noInstrCacheCnt);
+	printf("\t\tcache count             = %d.\n", cacheCount);
+	printf("\t\tdata cache count        = %d.\n", dataCacheCnt);
+	printf("\t\tinstruction cache count = %d.\n", instrCacheCnt);
 }
 void acquire_vm_from_drm()
 {
